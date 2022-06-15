@@ -10,9 +10,14 @@ You will need [Nodejs](https://nodejs.org/en/download/) installed. If you are wo
 
 Follow the steps below to get the app running on your local machine:
 
-1. Run `yarn install`.
-2. Run `yarn dev`.
-3. Open your browser to `http://localhost:3000`.
+1. Navigate into the app folder.
+1. Run `npm i`.
+1. Run `npm run dev`.
+1. Open your browser to `http://localhost:3000`.
+
+Alternatively, you can run the app in docker which adds a mongo database
+
+1. docker-compose up --build docker
 
 ## Scripts
 
@@ -22,7 +27,7 @@ Follow the steps below to get the app running on your local machine:
 | test      | Run Jest using defaults                 |
 | start     | Run in production mode                  |
 | prettier  | Format all JS code in the src directory |
-| changelog | Generate changelogs since last tag      |
+| build     | Generate the static js files for the ui |
 
 ## Conventions
 
