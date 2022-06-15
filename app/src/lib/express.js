@@ -73,7 +73,7 @@ module.exports = class Server {
 		this.app.use(passport.initialize());
 		this.app.use(passport.session());
 		// Configure passport and setup and strategies
-		require('./passport').initialize();
+		require('./passport').initialize(passport);
 
 		return this;
 	}
