@@ -12,27 +12,35 @@ services:
       MONGO_INIT_DB_ROOT_USERNAME: foo
       MONGO_INIT_DB_ROOT_PASSWORD: bar
     
-  app:
+  backend:
     build:
       context: ./app
       dockerfile: dockerfiles/pureNode.development
-    ports:
-      - "3000:3000"
     command: npm run dev
     environment:
       ENVIRONMENT: local
       DB_USER: foo
       DB_PASS: bar
       DB_HOST: mongo
+      BUILD_UI: false
+    logging:
+      driver: json-file
+    ports:
+      - "3001:3000"
     volumes:
       - "./app/src:/srv/src"
       - "./app/bin:/srv/bin"
-    # depends_on:
-    #   - mongo
-    #   - redis
-
-    redis:
-      from: redis
+  
+  ui:
+    build:
+      context: ./app
+      dockerfile: dockerfiles/apache
+    ports:
+      - "3000:80"
+    environment:
+      APP_BACKEND: backend
+    depends_on:
+      - backend
 
   devops:
     build:
