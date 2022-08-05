@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
     
 services:
   mongo:
@@ -31,14 +31,16 @@ services:
       - "./app/src:/srv/src"
       - "./app/bin:/srv/bin"
   
-  ui:
+  httpd:
     build:
       context: ./app
-      dockerfile: dockerfiles/apache
+      dockerfile: dockerfiles/httpd
     ports:
       - "3000:80"
     environment:
       APP_BACKEND: backend
+    logging:
+      driver: none
     depends_on:
       - backend
 
@@ -54,13 +56,6 @@ services:
       - $HOME/.ssh:/root/.ssh
       # enable aws access
       - ~/.aws:/root/.aws
-
-  nginx:
-    build:
-      context: ./app
-      dockerfile: dockerfiles/nginx
-    ports:
-      - 8080:80
 
 volumes:
   db_data:
