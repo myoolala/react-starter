@@ -21,6 +21,7 @@ module.exports = async function main(webpackConfig) {
 
 	// Start setting up our server
 	logger.info('Initializing server');
+	// @TODO: Add a section for cors support via the config
 	let server = new Server()
 		.configureMiddleware()
 		.configureSession()

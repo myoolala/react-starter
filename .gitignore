@@ -12,3 +12,7 @@ bin
 
 # Precaution
 app/certs
+
+#terraform/grunt
+.terragrunt-cache
+.terraform-cache
