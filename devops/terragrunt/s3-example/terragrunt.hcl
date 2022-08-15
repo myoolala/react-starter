@@ -9,8 +9,13 @@ locals {
 # Indicate the input values to use for the variables of the module.
 inputs = {
     create_s3_bucket = true
-    host_s3_bucket = "fatrockTest"
-    s3_prefix = "dev/"
+    host_s3_bucket = "fatrocktest"
+    # If you are not using an existing ACM cert, you will need to do multiple deploys
+    # The first to target only the cert to create it and validate it
+    # only then can you deploy everything else
+    # acm_arn = "arn:aws:acm:us-east-1:0123456789:certificate/abc123"
+    cname = "www.petergrasso.com"
+    s3_prefix = "dev"
     path_to_app = "${get_terragrunt_dir()}/../../../app/bin/"
 
   tags = {

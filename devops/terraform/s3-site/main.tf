@@ -1,38 +1,45 @@
-# resource "aws_s3_bucket" "host_bucket" {
-#   count  = var.create_s3_bucket ? 1 : 0
-#   bucket = var.host_s3_bucket
-#   acl    = "private"
-#   # Add specefic S3 policy in the s3-policy.json on the same directory
-#   #policy = file("s3-policy.json")
+resource "aws_acm_certificate" "cname_cert" {
+  count = var.acm_arn == null ? 1 : 0
+  domain_name = var.cname
+  validation_method = "DNS"
 
-#   versioning {
-#     enabled = false
-#   }
+  tags = merge(var.tags, {
 
-#   website {
-#     index_document = "index.html"
-#     error_document = "index.html"
+  })
 
-#     # Add routing rules if required
-#     #routing_rules = <<EOF
-#     #                [{
-#     #                    "Condition": {
-#     #                        "KeyPrefixEquals": "docs/"
-#     #                    },
-#     #                    "Redirect": {
-#     #                        "ReplaceKeyPrefixWith": "documents/"
-#     #                    }
-#     #                }]
-#     #                EOF
-#   }
+  lifecycle {
+    prevent_destroy = true
+  }
+}
 
-#   tags = merge(var.tags, {
+resource "aws_s3_bucket" "host_bucket" {
+  count  = var.create_s3_bucket ? 1 : 0
+  bucket = var.host_s3_bucket
+  # Add specefic S3 policy in the s3-policy.json on the same directory
+  #policy = file("s3-policy.json")
 
-#   })
+  tags = merge(var.tags, {
 
-# }
+  })
 
+  lifecycle {
+    prevent_destroy = true
+  }
+}
 
+resource "aws_s3_bucket_versioning" "host_bucket_versioning" {
+  count  = var.create_s3_bucket ? 1 : 0
+  bucket = aws_s3_bucket.host_bucket[0].id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example_bucket_acl" {
+  count  = var.create_s3_bucket ? 1 : 0
+  bucket = aws_s3_bucket.host_bucket[0].id
+  acl    = "private"
+}
 
 resource "aws_s3_bucket_website_configuration" "s3_site" {
   bucket = var.host_s3_bucket
@@ -48,6 +55,10 @@ resource "aws_s3_bucket_website_configuration" "s3_site" {
 #   routing_rule {
     
 #   }
+
+  depends_on = [
+    aws_s3_bucket.host_bucket
+  ]
 }
 
 #Upload files of your static website
@@ -55,179 +66,167 @@ resource "aws_s3_object" "html" {
   for_each = fileset(var.path_to_app, "/**/*.html")
 
   bucket       = var.host_s3_bucket
-  key          = "${var.s3_prefix}${each.value}"
+  key          = "${var.s3_prefix}/${each.value}"
   source       = "${var.path_to_app}${each.value}"
   etag         = filemd5("${var.path_to_app}${each.value}")
   content_type = "text/html"
 
-  depends_on = [aws_s3_bucket_website_configuration.s3_site]
+  depends_on = [
+    aws_s3_bucket_website_configuration.s3_site
+  ]
 }
 
-# resource "aws_s3_bucket_object" "css" {
-#   for_each = fileset("../../mywebsite/", "**/*.css")
+resource "aws_s3_bucket_object" "css" {
+  for_each = fileset(var.path_to_app, "/**/*.css")
 
-#   bucket = aws_s3_bucket_website_configuration.s3_site.bucket
-#   key    = each.value
-#   source = "../../mywebsite/${each.value}"
-#   etag   = filemd5("../../mywebsite/${each.value}")
-#   content_type = "text/css"
+  bucket       = var.host_s3_bucket
+  key          = "${var.s3_prefix}/${each.value}"
+  source       = "${var.path_to_app}${each.value}"
+  etag         = filemd5("${var.path_to_app}${each.value}")
+  content_type = "text/css"
 
-#   depends_on = var.create_s3_bucket ? [aws_s3_bucket_website_configuration.s3_site] : []
-# }
+  depends_on = [
+    aws_s3_bucket_website_configuration.s3_site
+  ]
+}
 
-# resource "aws_s3_bucket_object" "js" {
-#   for_each = fileset("../../mywebsite/", "**/*.js")
+resource "aws_s3_bucket_object" "js" {
+  for_each = fileset(var.path_to_app, "/**/*.js")
 
-#   bucket = aws_s3_bucket_website_configuration.s3_site.bucket
-#   key    = each.value
-#   source = "../../mywebsite/${each.value}"
-#   etag   = filemd5("../../mywebsite/${each.value}")
-#   content_type = "application/javascript"
+  bucket       = var.host_s3_bucket
+  key          = "${var.s3_prefix}/${each.value}"
+  source       = "${var.path_to_app}${each.value}"
+  etag         = filemd5("${var.path_to_app}${each.value}")
+  content_type = "application/javascript"
 
-#   depends_on = var.create_s3_bucket ? [aws_s3_bucket_website_configuration.s3_site] : []
-# }
+  depends_on = [
+    aws_s3_bucket_website_configuration.s3_site
+  ]
+}
+
 # Add more aws_s3_bucket_object for the type of files you want to upload
 # The reason for having multiple aws_s3_bucket_object with file type is to make sure
 # we add the correct content_type for the file in S3. Otherwise website load may have issues
 
-# locals {
-#   s3_origin_id = "s3-my-webapp.example.com"
-# }
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+  comment = var.cname
+}
 
-# resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-#   comment = "s3-my-webapp.example.com"
-# }
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    # We generate the name to keep the bucket requirement optional
+    domain_name = "${var.host_s3_bucket}.s3.amazonaws.com"
+    origin_path = "/${var.s3_prefix}"
+    origin_id   = var.cname
 
-# resource "aws_cloudfront_distribution" "s3_distribution" {
-#   origin {
-#     domain_name = aws_s3_bucket_website_configuration.s3_site.bucket_regional_domain_name
-#     origin_id   = local.s3_origin_id
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+    }
+  }
 
-#     s3_origin_config {
-#       origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
-#     }
-#   }
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
 
-#   enabled             = true
-#   is_ipv6_enabled     = true
-#   comment             = "my-cloudfront"
-#   default_root_object = "index.html"
+  # Configure logging here if required 	
+  #logging_config {
+  #  include_cookies = false
+  #  bucket          = "mylogs.s3.amazonaws.com"
+  #  prefix          = "myprefix"
+  #}
 
-#   # Configure logging here if required 	
-#   #logging_config {
-#   #  include_cookies = false
-#   #  bucket          = "mylogs.s3.amazonaws.com"
-#   #  prefix          = "myprefix"
-#   #}
+  # If you have domain configured use it here 
+  aliases = [var.cname]
 
-#   # If you have domain configured use it here 
-#   #aliases = ["mywebsite.example.com", "s3-static-web-dev.example.com"]
+  default_cache_behavior {
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = var.cname
 
-#   default_cache_behavior {
-#     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-#     cached_methods   = ["GET", "HEAD"]
-#     target_origin_id = local.s3_origin_id
+    forwarded_values {
+      query_string = false
 
-#     forwarded_values {
-#       query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
 
-#       cookies {
-#         forward = "none"
-#       }
-#     }
+    viewer_protocol_policy = "allow-all"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
 
-#     viewer_protocol_policy = "allow-all"
-#     min_ttl                = 0
-#     default_ttl            = 3600
-#     max_ttl                = 86400
-#   }
+  # Cache behavior with precedence 0
+  ordered_cache_behavior {
+    path_pattern = "*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id = var.cname
 
-#   # Cache behavior with precedence 0
-#   ordered_cache_behavior {
-#     path_pattern     = "/content/immutable/*"
-#     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-#     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-#     target_origin_id = local.s3_origin_id
+    forwarded_values {
+      query_string = false
+      headers      = ["Origin"]
 
-#     forwarded_values {
-#       query_string = false
-#       headers      = ["Origin"]
+      cookies {
+        forward = "none"
+      }
+    }
 
-#       cookies {
-#         forward = "none"
-#       }
-#     }
+    min_ttl                = 0
+    default_ttl            = 86400
+    max_ttl                = 31536000
+    compress               = true
+    viewer_protocol_policy = "redirect-to-https"
+  }
 
-#     min_ttl                = 0
-#     default_ttl            = 86400
-#     max_ttl                = 31536000
-#     compress               = true
-#     viewer_protocol_policy = "redirect-to-https"
-#   }
+  price_class = "PriceClass_200"
 
-#   # Cache behavior with precedence 1
-#   ordered_cache_behavior {
-#     path_pattern     = "/content/*"
-#     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-#     cached_methods   = ["GET", "HEAD"]
-#     target_origin_id = local.s3_origin_id
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
 
-#     forwarded_values {
-#       query_string = false
+  tags = merge(var.tags, {
 
-#       cookies {
-#         forward = "none"
-#       }
-#     }
+  })
 
-#     min_ttl                = 0
-#     default_ttl            = 3600
-#     max_ttl                = 86400
-#     compress               = true
-#     viewer_protocol_policy = "redirect-to-https"
-#   }
+  viewer_certificate {
+    acm_certificate_arn = var.acm_arn == null ? aws_acm_certificate.cname_cert[0].arn : var.acm_arn
+    ssl_support_method = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+  }
 
-#   price_class = "PriceClass_200"
+  depends_on = [
+    aws_acm_certificate.cname_cert
+  ]
+}
 
-#   restrictions {
-#     geo_restriction {
-#       restriction_type = "whitelist"
-#       locations        = ["US", "CA", "GB", "DE", "IN", "IR"]
-#     }
-#   }
+data "aws_iam_policy_document" "s3_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = [
+      "arn:aws:s3:::${var.host_s3_bucket}/${var.s3_prefix}/*"
+      ]
 
-#   tags = {
-#     Environment = "development"
-#     Name        = "my-tag"
-#   }
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+    }
+  }
+}
 
-#   viewer_certificate {
-#     cloudfront_default_certificate = true
-#   }
-# }
+resource "aws_s3_bucket_policy" "host_bucket" {
+  bucket = aws_s3_bucket_website_configuration.s3_site.id
+  policy = data.aws_iam_policy_document.s3_policy.json
+}
 
-# data "aws_iam_policy_document" "s3_policy" {
-#   statement {
-#     actions   = ["s3:GetObject"]
-#     resources = ["${aws_s3_bucket.b.arn}/*"]
+resource "aws_s3_bucket_public_access_block" "host_bucket" {
+  bucket = aws_s3_bucket_website_configuration.s3_site.id
 
-#     principals {
-#       type        = "AWS"
-#       identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
-#     }
-#   }
-# }
-
-# resource "aws_s3_bucket_policy" "host_bucket" {
-#   bucket = aws_s3_bucket_website_configuration.s3_site.id
-#   policy = data.aws_iam_policy_document.s3_policy.json
-# }
-
-# resource "aws_s3_bucket_public_access_block" "host_bucket" {
-#   bucket = aws_s3_bucket_website_configuration.s3_site.id
-
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   //ignore_public_acls      = true
-#   //restrict_public_buckets = true
-# }
+  block_public_acls       = false
+  block_public_policy     = false
+  //ignore_public_acls      = true
+  //restrict_public_buckets = true
+}
