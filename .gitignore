@@ -16,3 +16,4 @@ app/certs
 #terraform/grunt
 .terragrunt-cache
 .terraform-cache
+.terragrunt.lock.hcl

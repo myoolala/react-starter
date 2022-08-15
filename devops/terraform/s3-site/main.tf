@@ -1,46 +1,3 @@
-resource "aws_acm_certificate" "cname_cert" {
-  count = var.acm_arn == null ? 1 : 0
-  domain_name = var.cname
-  validation_method = "DNS"
-
-  tags = merge(var.tags, {
-
-  })
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "aws_s3_bucket" "host_bucket" {
-  count  = var.create_s3_bucket ? 1 : 0
-  bucket = var.host_s3_bucket
-  # Add specefic S3 policy in the s3-policy.json on the same directory
-  #policy = file("s3-policy.json")
-
-  tags = merge(var.tags, {
-
-  })
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "aws_s3_bucket_versioning" "host_bucket_versioning" {
-  count  = var.create_s3_bucket ? 1 : 0
-  bucket = aws_s3_bucket.host_bucket[0].id
-  versioning_configuration {
-    status = "Disabled"
-  }
-}
-
-resource "aws_s3_bucket_acl" "example_bucket_acl" {
-  count  = var.create_s3_bucket ? 1 : 0
-  bucket = aws_s3_bucket.host_bucket[0].id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_website_configuration" "s3_site" {
   bucket = var.host_s3_bucket
 
@@ -225,8 +182,8 @@ resource "aws_s3_bucket_policy" "host_bucket" {
 resource "aws_s3_bucket_public_access_block" "host_bucket" {
   bucket = aws_s3_bucket_website_configuration.s3_site.id
 
-  block_public_acls       = false
-  block_public_policy     = false
+  block_public_acls       = true
+  block_public_policy     = true
   //ignore_public_acls      = true
   //restrict_public_buckets = true
 }
