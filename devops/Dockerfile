@@ -18,8 +18,8 @@ RUN echo "Updating base container" && \
     echo "Installing SOPS" && \
     go install go.mozilla.org/sops/v3/cmd/sops@v3.7.1
 
-RUN tfenv install v1.1.7 && \
-    tfenv use 1.1.7 && \
+RUN tfenv install v1.2.7 && \
+    tfenv use 1.27.7 && \
     tgenv install 0.38.7 && \
     bash -c "source ~/.bashrc && nvm install 17"
 
