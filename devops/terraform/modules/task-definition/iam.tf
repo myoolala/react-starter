@@ -34,7 +34,7 @@ resource "aws_iam_role" "task_role" {
 
 
 resource "aws_iam_role" "task_execution_role" {
-  name = ""
+  name = "test-exec-role"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.

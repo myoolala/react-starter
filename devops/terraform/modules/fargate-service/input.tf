@@ -29,4 +29,5 @@ variable desired_count {
 variable image_tag {
     type = string
     description = "Version of the app in ECR to deploy"
+  default = null
 }

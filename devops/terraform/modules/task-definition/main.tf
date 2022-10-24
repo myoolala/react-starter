@@ -3,6 +3,8 @@ resource "aws_ecs_task_definition" "service" {
   execution_role_arn = aws_iam_role.task_execution_role.arn
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
+  cpu = var.cpu
+  memory    = var.memory
   container_definitions = jsonencode([
     {
       name      = var.name

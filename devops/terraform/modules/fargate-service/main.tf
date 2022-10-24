@@ -24,6 +24,9 @@ resource "aws_ecr_repository" "service_repo" {
 module "image" {
   source = "../task-definition"
 
+  name = var.service_name
+  service_name = var.service_name
+  image = var.image_tag == null ? "${var.service_name}:latest" : var.image_tag
 }
 
 
