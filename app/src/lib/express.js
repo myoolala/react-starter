@@ -199,6 +199,7 @@ module.exports = class Server {
 	listen(port, callback) {
 		let server;
 		if (this.config.listener.enableSsl) {
+			logger.debug('Starting the server in SSL mode');
 			server = require('https').createServer({
 				key: this.config.listener.sslKey,
 				cert: this.config.listener.sslCert,
@@ -206,6 +207,7 @@ module.exports = class Server {
 				passphrase: this.config.listener.sslKeyPassphrase
 			}, this.app);
 		} else {
+			logger.debug('Starting the server in a non SSL mode');
 			server = require('http').createServer(this.app);
 		}
 		

@@ -1,3 +1,5 @@
+data "aws_region" current {}
+
 resource "aws_ecs_task_definition" "service" {
   family                   = var.service_name
   execution_role_arn       = aws_iam_role.task_execution_role.arn
@@ -5,6 +7,7 @@ resource "aws_ecs_task_definition" "service" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.cpu
   memory                   = var.memory
+  task_role_arn = aws_iam_role.task_role.arn
   container_definitions = jsonencode([
     {
       name         = var.name
@@ -12,7 +15,19 @@ resource "aws_ecs_task_definition" "service" {
       cpu          = var.cpu
       memory       = var.memory
       essential    = true
-      portMappings = var.port_mappings
+      portMappings = var.port_mappings,
+      environment = [
+        for field, value in var.env_vars:
+          {name = field, value = value}
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-region" = data.aws_region.current.name
+          "awslogs-group" = var.log_group
+          "awslogs-stream-prefix" = "streaming"
+        }
+      }
     }
   ])
 

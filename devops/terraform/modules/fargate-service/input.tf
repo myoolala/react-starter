@@ -83,3 +83,15 @@ variable "lb_ingress_cidr" {
   type    = string
   default = "0.0.0.0/0"
 }
+
+variable log_retention {
+    type = number
+    default = 7
+    description = "Number of days to store the service logs for"
+}
+
+variable env_vars {
+  type = map(string)
+  default = {}
+  description = "Environment variables to pass to the container in {<key> = <value>, <key> = <value>} form"
+}

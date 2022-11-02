@@ -13,6 +13,7 @@ resource "aws_security_group" "lb" {
     from_port   = 0
     to_port     = 0
     protocol    = "tcp"
+    # In a perfect world this would only allow communication either to the target SG or current VPC
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -37,6 +38,7 @@ resource "aws_lb_target_group" "forwarder" {
   port     = var.container_port
   protocol = var.service_protocol
   vpc_id   = var.vpc_id
+  target_type = "ip"
 }
 
 resource "aws_lb_listener" "public_endpoint" {

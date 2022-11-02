@@ -9,8 +9,14 @@ data "aws_iam_policy_document" "container-assume-role-policy" {
   }
 }
 
+data "aws_caller_identity" current {}
+
 resource "aws_iam_role" "task_role" {
   name = "test_role"
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  ]
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -22,7 +28,12 @@ resource "aws_iam_role" "task_role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ecs.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
+          }
         }
       },
     ]
@@ -35,6 +46,10 @@ resource "aws_iam_role" "task_role" {
 
 resource "aws_iam_role" "task_execution_role" {
   name = "test-exec-role"
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  ]
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -46,7 +61,7 @@ resource "aws_iam_role" "task_execution_role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ecs.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
         }
       },
     ]
