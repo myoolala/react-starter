@@ -95,3 +95,27 @@ variable "env_vars" {
   default     = {}
   description = "Environment variables to pass to the container in {<key> = <value>, <key> = <value>} form"
 }
+
+variable "health_check_interval" {
+  type        = number
+  default     = 30
+  description = "Time in seconds between health checks"
+}
+
+variable "lb_healthy_threshold" {
+  type        = number
+  default     = 2
+  description = "Number of passing consecutive health checks for the instance to be considered healthy enough to accept traffic"
+}
+
+variable "lb_unhealthy_threshold" {
+  type        = number
+  default     = 10
+  description = "Number of failing consecutive health checks for the instance to terminated"
+}
+
+variable "health_check_path" {
+  type        = string
+  default     = "/api/healthcheck"
+  description = "Path to the healthcheck endpoint"
+}

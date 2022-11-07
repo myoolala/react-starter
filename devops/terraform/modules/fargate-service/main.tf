@@ -35,6 +35,12 @@ module "image" {
   image        = var.image_tag == null ? "${var.service_name}:latest" : var.image_tag
   log_group    = aws_cloudwatch_log_group.logs.name
   env_vars     = var.env_vars
+  port_mappings = [
+    {
+      containerPort = var.container_port
+      hostPort      = var.container_port
+    }
+  ]
 }
 
 resource "aws_security_group" "service" {
@@ -45,8 +51,8 @@ resource "aws_security_group" "service" {
     from_port = var.lb_port
     to_port   = var.lb_port
     protocol  = "tcp"
-    # security_groups = [aws_security_group.lb.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.lb.id]
+    # cidr_blocks = ["0.0.0.0/0"]
   }
 
   // Required in order to pull down the image
@@ -80,11 +86,11 @@ resource "aws_ecs_service" "app" {
   #     field = "cpu"
   #   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.forwarder.arn
-  #   container_name   = var.service_name
-  #   container_port   = var.container_port
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.forwarder.arn
+    container_name   = var.service_name
+    container_port   = var.container_port
+  }
 
   #   placement_constraints {
   #     type       = "memberOf"

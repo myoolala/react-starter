@@ -11,11 +11,11 @@ WORKDIR /srv
 # Copy in our package.json and other root files
 COPY Entrypoint.sh package.json postcss.config.js ./
 
-# Annoyed this has to be its own layer, fix it if you know how
-COPY src /srv/src
-
 # Then install any dependencies, this will help with caching
 RUN npm install --omit=dev
+
+# Annoyed this has to be its own layer, fix it if you know how
+COPY src /srv/src
 
 # Run our app
 ENTRYPOINT [ "/srv/Entrypoint.sh" ]

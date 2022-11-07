@@ -12,7 +12,7 @@ resource "aws_security_group" "lb" {
   egress {
     from_port = 0
     to_port   = 0
-    protocol  = "tcp"
+    protocol  = "-1"
     # In a perfect world this would only allow communication either to the target SG or current VPC
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -39,6 +39,16 @@ resource "aws_lb_target_group" "forwarder" {
   protocol    = var.service_protocol
   vpc_id      = var.vpc_id
   target_type = "ip"
+
+  health_check {
+    enabled             = true
+    matcher             = "200-399"
+    interval            = var.health_check_interval
+    healthy_threshold   = var.lb_healthy_threshold
+    unhealthy_threshold = var.lb_unhealthy_threshold
+    protocol            = var.lb_protocol
+    path                = "/"
+  }
 }
 
 resource "aws_lb_listener" "public_endpoint" {

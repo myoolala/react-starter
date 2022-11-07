@@ -160,6 +160,7 @@ module.exports = class Server {
 		// side router. The public routes would get invoked and block your SPA from
 		// loading the correct content on a page refresh
 		this.app.get('*', (req, res) => {
+			logger.debug('Received request on ' + req.path);
 			// Grab our stats, this will be cached in production
 			if (process.env.NODE_ENV === 'development') {
 				delete require.cache[statsPath];
