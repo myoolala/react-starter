@@ -10,9 +10,9 @@ resource "aws_security_group" "lb" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "tcp"
+    from_port = 0
+    to_port   = 0
+    protocol  = "tcp"
     # In a perfect world this would only allow communication either to the target SG or current VPC
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -34,10 +34,10 @@ resource "aws_lb" "ingress" {
 }
 
 resource "aws_lb_target_group" "forwarder" {
-  name     = "${var.service_name}-tg"
-  port     = var.container_port
-  protocol = var.service_protocol
-  vpc_id   = var.vpc_id
+  name        = "${var.service_name}-tg"
+  port        = var.container_port
+  protocol    = var.service_protocol
+  vpc_id      = var.vpc_id
   target_type = "ip"
 }
 

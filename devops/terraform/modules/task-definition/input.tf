@@ -20,7 +20,7 @@ variable "memory" {
   description = "Memory amount in MB to give to the docker definition"
 }
 
-variable log_group {
+variable "log_group" {
   type        = string
   description = "Name of the cloudwatch group to store logs in"
 }
@@ -35,9 +35,9 @@ variable "port_mappings" {
   ]
 }
 
-variable env_vars {
-  type = map(string)
-  default = {}
+variable "env_vars" {
+  type        = map(string)
+  default     = {}
   description = "Environment variables to pass to the container in {<key> = <value>, <key> = <value>} form"
 }
 

@@ -21,7 +21,7 @@ resource "aws_ecr_repository" "service_repo" {
   }
 }
 
-resource "aws_cloudwatch_log_group" logs {
+resource "aws_cloudwatch_log_group" "logs" {
   name = var.service_name
 
   retention_in_days = var.log_retention
@@ -33,8 +33,8 @@ module "image" {
   name         = var.service_name
   service_name = var.service_name
   image        = var.image_tag == null ? "${var.service_name}:latest" : var.image_tag
-  log_group = aws_cloudwatch_log_group.logs.name
-  env_vars = var.env_vars
+  log_group    = aws_cloudwatch_log_group.logs.name
+  env_vars     = var.env_vars
 }
 
 resource "aws_security_group" "service" {
@@ -42,18 +42,18 @@ resource "aws_security_group" "service" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port       = var.lb_port
-    to_port         = var.lb_port
-    protocol        = "tcp"
+    from_port = var.lb_port
+    to_port   = var.lb_port
+    protocol  = "tcp"
     # security_groups = [aws_security_group.lb.id]
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   // Required in order to pull down the image
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -80,11 +80,11 @@ resource "aws_ecs_service" "app" {
   #     field = "cpu"
   #   }
 
-    # load_balancer {
-    #   target_group_arn = aws_lb_target_group.forwarder.arn
-    #   container_name   = var.service_name
-    #   container_port   = var.container_port
-    # }
+  # load_balancer {
+  #   target_group_arn = aws_lb_target_group.forwarder.arn
+  #   container_name   = var.service_name
+  #   container_port   = var.container_port
+  # }
 
   #   placement_constraints {
   #     type       = "memberOf"

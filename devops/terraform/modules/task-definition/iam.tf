@@ -9,7 +9,7 @@ data "aws_iam_policy_document" "container-assume-role-policy" {
   }
 }
 
-data "aws_caller_identity" current {}
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "task_role" {
   name = "test_role"
