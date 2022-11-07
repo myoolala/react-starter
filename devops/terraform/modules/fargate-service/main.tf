@@ -48,9 +48,9 @@ resource "aws_security_group" "service" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port = var.lb_port
-    to_port   = var.lb_port
-    protocol  = "tcp"
+    from_port       = var.lb_port
+    to_port         = var.lb_port
+    protocol        = "tcp"
     security_groups = [aws_security_group.lb.id]
     # cidr_blocks = ["0.0.0.0/0"]
   }
