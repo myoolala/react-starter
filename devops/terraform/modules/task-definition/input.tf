@@ -51,3 +51,9 @@ variable "tags" {
   description = "Tags to apply to all resources. Ie: environment, cost tracking, etc..."
   default     = {}
 }
+
+variable secrets {
+  type = list(map(string))
+  default = []
+  description = "Secrets to load into the container's environment"
+}
