@@ -47,7 +47,7 @@ resource "aws_lb_target_group" "forwarder" {
     healthy_threshold   = var.lb_healthy_threshold
     unhealthy_threshold = var.lb_unhealthy_threshold
     protocol            = var.lb_protocol
-    path                = "/"
+    path                = var.health_check_path
   }
 }
 
