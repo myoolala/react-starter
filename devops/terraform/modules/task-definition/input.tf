@@ -35,6 +35,12 @@ variable "port_mappings" {
   ]
 }
 
+variable permissions {
+  type = string
+  default = null
+  description = "Json encoded string of permissions to attach to the container"
+}
+
 variable "env_vars" {
   type        = map(string)
   default     = {}
@@ -53,7 +59,10 @@ variable "tags" {
 }
 
 variable secrets {
-  type = list(map(string))
+  type = list(object({
+    name = string
+    valueFrom = string
+  }))
   default = []
   description = "Secrets to load into the container's environment"
 }

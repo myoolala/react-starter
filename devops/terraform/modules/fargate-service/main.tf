@@ -43,7 +43,7 @@ module "image" {
   image        = var.image_tag == null ? "${var.service_name}:latest" : var.image_tag
   log_group    = aws_cloudwatch_log_group.logs.name
   env_vars     = var.env_vars
-  secrets      = module.secrets.env_map
+  secrets      = module.secrets.fargate_secrets
   port_mappings = [
     {
       containerPort = var.container_port
