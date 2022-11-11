@@ -19,7 +19,7 @@ resource "aws_iam_role" "task_role" {
   ]
 
   inline_policy {
-    name = "AppPermissions"
+    name   = "AppPermissions"
     policy = var.permissions
   }
 
@@ -62,9 +62,9 @@ resource "aws_iam_role" "task_execution_role" {
       Version = "2012-10-17"
       Statement = [
         {
-          Action = "secretsmanager:GetSecretValue"
-          Effect = "Allow"
-          Sid    = ""
+          Action   = "secretsmanager:GetSecretValue"
+          Effect   = "Allow"
+          Sid      = ""
           Resource = [for secret in var.secrets : secret.valueFrom]
         }
       ]

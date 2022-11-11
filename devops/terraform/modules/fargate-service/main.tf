@@ -1,8 +1,8 @@
-module secrets {
+module "secrets" {
   source = "../secrets"
 
-  secrets = var.secrets
-  region = var.region
+  secrets         = var.secrets
+  region          = var.region
   recovery_window = 0
 }
 
