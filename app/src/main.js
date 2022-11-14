@@ -26,7 +26,7 @@ module.exports = async function main(webpackConfig) {
 		.configureSession()
 		.configurePassport()
 		.configureHelmet()
-		// @TODO: Fix that fucking misspelling
+		// @TODO: Fix that misspelling
 		.configureCores()
 		.configureViewEngine('pug', config.files.views)
 		.configureLocals(config.locals);
