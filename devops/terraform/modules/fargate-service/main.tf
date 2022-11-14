@@ -102,11 +102,11 @@ resource "aws_ecs_service" "app" {
   #     field = "cpu"
   #   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.forwarder.arn
-  #   container_name   = var.service_name
-  #   container_port   = var.container_port
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.forwarder.arn
+    container_name   = var.service_name
+    container_port   = var.container_port
+  }
 
   #   placement_constraints {
   #     type       = "memberOf"
