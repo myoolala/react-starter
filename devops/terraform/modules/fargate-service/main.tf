@@ -3,6 +3,8 @@ module "secrets" {
 
   secrets         = var.secrets
   region          = var.region
+  # @TODO: Fix the permissions when using a customer managed key
+  create_new_key  = false
   recovery_window = 0
 }
 
@@ -22,6 +24,7 @@ data "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_ecr_repository" "service_repo" {
+  count = var.create_ecr_repo ? 1 : 0
   name                 = var.service_name
   image_tag_mutability = "IMMUTABLE"
   image_scanning_configuration {
@@ -61,11 +64,11 @@ resource "aws_security_group" "service" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port       = var.lb_port
-    to_port         = var.lb_port
+    from_port       = var.container_port
+    to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.lb.id]
-    # cidr_blocks = ["0.0.0.0/0"]
+    # security_groups = [aws_security_group.lb.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   // Required in order to pull down the image
@@ -99,11 +102,11 @@ resource "aws_ecs_service" "app" {
   #     field = "cpu"
   #   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.forwarder.arn
-    container_name   = var.service_name
-    container_port   = var.container_port
-  }
+  # load_balancer {
+  #   target_group_arn = aws_lb_target_group.forwarder.arn
+  #   container_name   = var.service_name
+  #   container_port   = var.container_port
+  # }
 
   #   placement_constraints {
   #     type       = "memberOf"
