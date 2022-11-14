@@ -67,8 +67,8 @@ resource "aws_security_group" "service" {
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
-    # security_groups = [aws_security_group.lb.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.lb.id]
+    # cidr_blocks = ["0.0.0.0/0"]
   }
 
   // Required in order to pull down the image
