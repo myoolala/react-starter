@@ -27,7 +27,7 @@ module.exports = async function main(webpackConfig) {
 		.configurePassport()
 		.configureHelmet(config.server.helmet)
 		// @TODO: Fix that misspelling
-		.configureCores()
+		.configureCors()
 		.configureViewEngine('pug', config.files.views)
 		.configureLocals(config.locals);
 

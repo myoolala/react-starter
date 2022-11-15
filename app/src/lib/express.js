@@ -56,12 +56,12 @@ module.exports = class Server {
 	}
 
 	/**
-	 * @method configureCores
+	 * @method configureCors
 	 * @description If desired, adds a global cors configuration
 	 * Not designed, to have the config pass in a function if you need dynamic cors
 	 * updates, like from a database. If that need happens, modify this function
 	 */
-	configureCores() {
+	configureCors() {
 		this.app.use(cors(this.config.cors.config));
 		return this;
 	}
