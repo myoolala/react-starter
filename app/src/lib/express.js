@@ -114,8 +114,8 @@ module.exports = class Server {
 	 * @description Enable default settings for security related express headers
 	 * See https://helmetjs.github.io/ for defaults
 	 */
-	configureHelmet() {
-		this.app.use(helmet());
+	configureHelmet(config) {
+		this.app.use(helmet(config));
 
 		return this;
 	}

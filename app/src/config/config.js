@@ -10,6 +10,8 @@ const path = require('path'),
  * @returns a normalized cert string
  */
 const normalizeCert = cert => {
+	if (!cert) return cert;
+	
 	let [header, content] = cert.trim().split(/-\s/);
 	let [body, footer] = content.split(/\s-/);
 	body = body.replace(/\s/g,"\n");
@@ -54,6 +56,26 @@ module.exports = {
 				methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 				preflightContinue: false,
 				optionsSuccessStatus: 204,
+			}
+		},
+		// @link: https://www.npmjs.com/package/helmet
+		helmet: {
+			contentSecurityPolicy: {
+				useDefaults: true,
+				// These are the default values if you want to change them
+				directives: {
+					"default-src": ["'self'"],
+					"base-uri": ["'self'"],
+					"font-src": ["'self'", "https: data:"],
+					"form-action": ["'self'"],
+					"frame-ancestors": ["'self'"],
+					"img-src": ["'self'", "data:"],
+					"object-src": ["'none'"],
+					"script-src": ["'self'"],
+					"script-src-attr": ["'none'"],
+					"style-src": ["'self'",  "https: 'unsafe-inline'"],
+					"upgrade-insecure-requests": []
+				}
 			}
 		},
 		session: {

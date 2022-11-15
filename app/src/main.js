@@ -25,7 +25,7 @@ module.exports = async function main(webpackConfig) {
 		.configureMiddleware()
 		.configureSession()
 		.configurePassport()
-		.configureHelmet()
+		.configureHelmet(config.server.helmet)
 		// @TODO: Fix that misspelling
 		.configureCores()
 		.configureViewEngine('pug', config.files.views)
