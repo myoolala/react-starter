@@ -10,7 +10,7 @@ variable api_code_bucket_name {
 
 variable environment_vars {
     type = map(string)
-    default = {}
+    default = null
     description = "list of environment variables for the api"
 }
 

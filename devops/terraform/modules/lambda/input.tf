@@ -39,6 +39,6 @@ variable log_retention {
 
 variable environment_vars {
     type = map(string)
-    default = {}
+    default = null
     description = "Environment variables to pass into the lambda"
 }

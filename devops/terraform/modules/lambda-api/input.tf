@@ -6,7 +6,7 @@ variable make_new_bucket {
 
 variable environment_vars {
     type = map(string)
-    default = {}
+    default = null
     description = "Environment variables to pass into the lambda"
 }
 
@@ -23,4 +23,16 @@ variable bucket_key {
 variable lambda_name {
     type = string
     description = "Name for the lambda function"
+}
+
+variable protocol {
+    type = string
+    description = "Protocol for the lambda api"
+    default = "HTTP"
+}
+
+variable auto_deploy {
+    type = bool
+    description = "Whether updates to an API automatically trigger a new deployment"
+    default = false
 }
