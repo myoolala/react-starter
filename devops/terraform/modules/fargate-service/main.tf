@@ -23,7 +23,7 @@ data "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_ecr_repository" "service_repo" {
-  count = var.create_ecr_repo ? 1 : 0
+  count                = var.create_ecr_repo ? 1 : 0
   name                 = var.service_name
   image_tag_mutability = "IMMUTABLE"
   image_scanning_configuration {

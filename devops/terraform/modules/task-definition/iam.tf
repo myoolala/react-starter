@@ -68,7 +68,7 @@ resource "aws_iam_role" "task_execution_role" {
           Resource = [for secret in var.secrets : secret.valueFrom]
         }], length(var.secrets_keys) == 0 ? [] : [
         {
-          Action   = [
+          Action = [
             "kms:Decrypt"
           ]
           Effect   = "Allow"

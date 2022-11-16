@@ -1,35 +1,35 @@
-resource "aws_lambda_function" function {
-    function_name = var.function_name
+resource "aws_lambda_function" "function" {
+  function_name = var.function_name
 
-    s3_bucket = var.bucket
-    s3_key = var.key
+  s3_bucket = var.bucket
+  s3_key    = var.key
 
-    runtime = var.runtime
-    handler = var.handler
+  runtime = var.runtime
+  handler = var.handler
 
-    role = var.role != null ? var.role : aws_iam_role.lambda_exec[0].arn
+  role = var.role != null ? var.role : aws_iam_role.lambda_exec[0].arn
 
-    dynamic environment {
-      for_each = var.environment_vars != null ? [1] : []
-      content {
-        variables = var.environment_vars
-      }
+  dynamic "environment" {
+    for_each = var.environment_vars != null ? [1] : []
+    content {
+      variables = var.environment_vars
     }
+  }
 
-    depends_on = [
-      aws_iam_role.lambda_exec
-    ]
+  depends_on = [
+    aws_iam_role.lambda_exec
+  ]
 }
 
-resource "aws_cloudwatch_log_group" logs {
+resource "aws_cloudwatch_log_group" "logs" {
   name = "/aws/lambda/${aws_lambda_function.function.function_name}"
 
   retention_in_days = var.log_retention
 }
 
-resource "aws_iam_role" lambda_exec {
-    count = var.role == null ? 1 : 0
-  name = var.function_name
+resource "aws_iam_role" "lambda_exec" {
+  count = var.role == null ? 1 : 0
+  name  = var.function_name
 
   inline_policy {
     name = "Logging"
@@ -43,7 +43,7 @@ resource "aws_iam_role" lambda_exec {
             "logs:PutLogEvents"
           ]
           Resource = "arn:aws:logs:*:*:*"
-          Effect = "Allow"
+          Effect   = "Allow"
         }
       ]
     })
@@ -63,8 +63,8 @@ resource "aws_iam_role" lambda_exec {
   })
 }
 
-resource "aws_iam_role_policy_attachment" lambda_policy {
-    count = var.role != null ? 1 : 0
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+  count      = var.role != null ? 1 : 0
   role       = aws_iam_role.lambda_exec[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
