@@ -37,10 +37,12 @@ module.exports = {
 	files: {
 		routes: glob.sync(path.resolve('src/server/**/*.routes.js')),
 		views: glob.sync(path.resolve('src/server/**/views')),
+		lambda: path.resolve('src/lambda')
 	},
 	server: {
 		publicDirectory: env.get('PUBLIC_DIR').default('public').asString(),
 		logLevel: env.get('LOG_LEVEL').default('info').asString(),
+		apiMode: env.get('API_MODE').default('DEFAULT').asString(),
 		listener: {
 			port: env.get('PORT').default('3000').asIntPositive(),
 			enableSsl: env.get('ENABLE_SSL').default('false').asBool(),
