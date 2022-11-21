@@ -1,6 +1,6 @@
 const controller = require('./controler');
 
-modules.exports = {
+module.exports = {
     'GET /api/user/active': controller.getActiveUser,
     'POST /api/user/login': controller.login
 }

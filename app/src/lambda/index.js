@@ -15,21 +15,42 @@ async function getFiles(dir) {
   }));
   return files.reduce((a, f) => a.concat(f), []);
 }
+const routes = getFiles(__dirname).then(files => {
+  return files.filter(file => new RegExp(ROUTES_PATTERN).test(file));
+}).then(files => {
+  return files.reduce((agg, file) => {
+    return {
+      ...agg,
+      ...require(file)
+    }
+  }, {});
+});
+
+
 
 
 module.exports.handler = async (event) => {
-  // console.log('Event: ', event);
+  console.log('Event: ', event);
 
-  let files = (await getFiles(__dirname)).filter(file => new RegExp(ROUTES_PATTERN).test(file));
-  console.log(files);
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      message: 'whoops',
-    }),
+  let options = await routes;
+  const option = event.requestContext.resourceId;
+  try {
+    if (options[option]) {
+      return options[option](event);
+    } else if (options[event.requestContext.httpMethod + ' $default']) {
+      return options[event.requestContext.httpMethod + ' $default'](event);
+    }
+    throw new Error('No matching endpoint found');
+  } catch (e) {
+    console.error(e);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: 'An error has occured',
+      }),
+    }
   }
 }

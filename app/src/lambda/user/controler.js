@@ -1,3 +1,4 @@
+const userService = require('./service');
 /**
  * @function exports.getActiveUser
  * @description Get the current logged in user
@@ -11,7 +12,7 @@ module.exports.getActiveUser = function getActiveUser(event) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userService.getUser(req)),
+    body: JSON.stringify(userService.getUser(event)),
   }
 };
 
