@@ -42,3 +42,24 @@ module "backend" {
     aws_apigatewayv2_api.gateway
   ]
 }
+
+module "frontend_and_cache" {
+  source = "../s3-site"
+
+  create_s3_bucket = var.create_ui_bucket
+  host_s3_bucket = var.ui_bucket_name
+  # If you are not using an existing ACM cert, you will need to do multiple deploys
+  # The first to target only the cert to create it and validate it
+  # only then can you deploy everything else
+  acm_arn = var.acm_arn
+  cname = var.cname
+  s3_prefix = var.s3_prefix
+  path_to_app = var.ui_files
+  apigateway_origins = [
+    {
+      id = "API"
+      domain_name = trimprefix(aws_apigatewayv2_api.gateway.api_endpoint, "https://")
+      path_pattern = "/api/*"
+    }
+  ]
+}

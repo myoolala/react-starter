@@ -28,3 +28,40 @@ variable "function_configs" {
   default     = {}
   description = "Config for all of the lambdas to produce"
 }
+
+variable create_ui_bucket {
+  type = bool
+  default = true
+  description = "Create a new bucket to house the UI code in"
+}
+
+variable ui_bucket_name {
+  type = string
+  description = "Name of the bucket to house the publicly reachable files"
+}
+
+variable acm_arn {
+  type = string
+  description = "ARN of the aws cert to attach to cloudfront if desired"
+  default = null
+}
+
+variable cname {
+  type = string
+  description = "CNAME for the site that is being hosted"
+}
+
+variable s3_prefix {
+  type = string
+  description = "Prefix to use when storing the site in s3"
+
+  validation {
+    condition     = can(regex("^[^\\/](?:.*[^\\/])?$", var.s3_prefix))
+    error_message = "No leading or trailing slashes are allowed."
+  }
+}
+
+variable ui_files {
+  type        = string
+  description = "Absolute path to the files to serve via s3"
+}
