@@ -36,3 +36,32 @@ variable "auto_deploy" {
   description = "Whether updates to an API automatically trigger a new deployment"
   default     = false
 }
+
+variable "create_new_gateway" {
+  type        = bool
+  description = "Create a new gateway for the lambda to use"
+  default     = true
+}
+
+variable "gateway_id" {
+  type        = string
+  description = "Id of an existing API gateway to use if you are not creating one"
+  default     = null
+}
+
+variable "gateway_arn" {
+  type        = string
+  description = "ARN of an existing API gateway to use if you are not creating one"
+  default     = null
+}
+
+variable "api_log_group" {
+  type        = string
+  description = "Log group name of the place to send stage logs to if a gateway was provided"
+  default     = null
+}
+
+variable "endpoints" {
+  type        = set(string)
+  description = "List of endpoints to register to the lambda"
+}
