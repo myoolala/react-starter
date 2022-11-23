@@ -24,6 +24,7 @@ variable "function_configs" {
   type = map(object({
     s3Uri  = string
     routes = set(string)
+    prefix = string
   }))
   default     = {}
   description = "Config for all of the lambdas to produce"

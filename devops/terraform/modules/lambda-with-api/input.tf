@@ -25,6 +25,11 @@ variable "lambda_name" {
   description = "Name for the lambda function"
 }
 
+variable path_prefix {
+  type = string
+  description = "Common path shared between all endpoints"
+}
+
 variable "protocol" {
   type        = string
   description = "Protocol for the lambda api"

@@ -31,6 +31,7 @@ module "backend" {
   bucket_key      = each.value.s3Uri
   endpoints       = each.value.routes
   lambda_name     = each.key
+  path_prefix     = each.value.prefix
   auto_deploy     = true
   create_new_gateway = false
   gateway_id = aws_apigatewayv2_api.gateway.id
@@ -40,6 +41,20 @@ module "backend" {
   depends_on = [
     aws_s3_bucket.code_bucket,
     aws_apigatewayv2_api.gateway
+  ]
+}
+
+resource "aws_lambda_permission" "api_gw" {
+  for_each = var.function_configs
+
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.backend[each.key].function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.gateway.execution_arn}/*/*"
+
+  depends_on = [
+    module.backend
   ]
 }
 
@@ -56,10 +71,12 @@ module "frontend_and_cache" {
   s3_prefix = var.s3_prefix
   path_to_app = var.ui_files
   apigateway_origins = [
+    for stage in module.backend:
     {
-      id = "API"
+      id = stage.stage_name
       domain_name = trimprefix(aws_apigatewayv2_api.gateway.api_endpoint, "https://")
-      path_pattern = "/api/*"
+      path_pattern = length(stage.routes) < 2 ? "${stage.path_prefix}" : "${stage.path_prefix}/*"
+      stage_name = "/${stage.stage_name}"
     }
   ]
 }
