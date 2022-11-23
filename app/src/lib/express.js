@@ -147,40 +147,44 @@ module.exports = class Server {
 	setPublicRoutes(apiMode = 'default', files = {}) {
 		if (apiMode == 'LAMBDA') {
 			let { handler } = require(files.lambda);
-			this.app.use('/api/*', async (req, res) => {
+			this.app.use(async (req, res, next) => {
 				const uri = req.baseUrl + (req.path != '/' ? req.path : '');
-				let {statusCode, headers, body} = await handler({
-					headers: [],
-					body: req.body,
-					queryStringParameters: req.query,
-					requestContext: {
-						domainName: req.get('host'),
-						domainPrefix: '',
-						httpMethod: req.method,
-						identity: {
-							accessKey: null,
-							accountId: null,
-							caller: null,
-							cognitoAmr: null,
-							cognitoAuthenticationProvider: null,
-							cognitoAuthenticationType: null,
-							cognitoIdentityId: null,
-							cognitoIdentityPoolId: null,
-							principalOrgId: null,
-							sourceIp: '127.0.0.1',
-							user: null,
-							userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
-							userArn: null
-						},
-						path: uri,
-						protocol: 'HTTP/1.1',
-						requestTime: new Date().toISOString(),
-						requestTimeEpoch: new Date().valueOf(),
-						resourceId: `${req.method} ${uri}`,
-						resourcePath: uri,
-					}
-				});
-				res.status(statusCode).set(headers).send(body);
+				try {
+					let {statusCode, headers, body} = await handler({
+						headers: [],
+						body: req.body,
+						queryStringParameters: req.query,
+						requestContext: {
+							domainName: req.get('host'),
+							domainPrefix: '',
+							httpMethod: req.method,
+							identity: {
+								accessKey: null,
+								accountId: null,
+								caller: null,
+								cognitoAmr: null,
+								cognitoAuthenticationProvider: null,
+								cognitoAuthenticationType: null,
+								cognitoIdentityId: null,
+								cognitoIdentityPoolId: null,
+								principalOrgId: null,
+								sourceIp: '127.0.0.1',
+								user: null,
+								userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+								userArn: null
+							},
+							path: uri,
+							protocol: 'HTTP/1.1',
+							requestTime: new Date().toISOString(),
+							requestTimeEpoch: new Date().valueOf(),
+							resourceId: `${req.method} ${uri}`,
+							resourcePath: uri,
+						}
+					});
+					res.status(statusCode).set(headers).send(body);
+				} catch (e) {
+					next();
+				}
 			});	
 		} else {
 			logger.debug(JSON.stringify(files.routes, null, 4));

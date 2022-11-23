@@ -19,6 +19,8 @@ resource "aws_s3_bucket_website_configuration" "s3_site" {
 }
 
 #Upload files of your static website
+# @TODO: kill these resources. Do not manages the files here
+# It will wreak havoc when there are multiple devs
 resource "aws_s3_object" "html" {
   for_each = fileset(var.path_to_app, "/**/*.html")
 

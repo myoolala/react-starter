@@ -9,6 +9,7 @@ node_modules
 coverage
 public
 bin
+devops/builds
 
 # Precaution
 app/certs

@@ -1,5 +1,8 @@
 const controller = require('./controller');
 
 module.exports = {
-    'GET /api/healthcheck': controller.healthcheck
+    prefix: '/api/healthcheck',
+    routes: {
+        'GET ': controller.healthcheck
+    }
 }
