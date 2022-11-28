@@ -45,6 +45,7 @@ services:
     build:
       context: ./devops
     environment:
+      # Move the history file to be in the volume
       - HISTFILE=/root/bash_history/.bash_history
     volumes:
       # Store the history
