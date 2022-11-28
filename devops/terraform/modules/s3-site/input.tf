@@ -42,13 +42,13 @@ variable "tags" {
   default     = {}
 }
 
-variable apigateway_origins {
+variable "apigateway_origins" {
   type = set(object({
-    id = string
-    domain_name = string
+    id           = string
+    domain_name  = string
     path_pattern = string
-    stage_name = string
+    stage_name   = string
   }))
   description = "List of other origins to add to the cloudfront distro"
-  default = []
+  default     = []
 }

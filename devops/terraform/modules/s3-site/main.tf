@@ -88,14 +88,14 @@ resource "aws_cloudfront_distribution" "distro" {
 
     content {
       domain_name = origin.value.domain_name
-      origin_id = origin.value.id
+      origin_id   = origin.value.id
       origin_path = origin.value.stage_name
-      
+
       custom_origin_config {
-        http_port = 80
-        https_port = 443
+        http_port              = 80
+        https_port             = 443
         origin_protocol_policy = "https-only"
-        origin_ssl_protocols = ["TLSv1.2"]
+        origin_ssl_protocols   = ["TLSv1.2"]
       }
     }
   }
@@ -152,7 +152,7 @@ resource "aws_cloudfront_distribution" "distro" {
         query_string = true
         # Define explicit headers, since API Gateway doesn't work otherwise
         # Aka host mismatch leads to 403's
-        headers      = [
+        headers = [
           "Accept",
           "Referer",
           "Athorization",
