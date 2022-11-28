@@ -26,7 +26,6 @@ module.exports = async function main(webpackConfig) {
 		.configureSession()
 		.configurePassport()
 		.configureHelmet(config.server.helmet)
-		// @TODO: Fix that misspelling
 		.configureCors()
 		.configureViewEngine('pug', config.files.views)
 		.configureLocals(config.locals);
@@ -47,7 +46,7 @@ module.exports = async function main(webpackConfig) {
 	// Finish setting up the server
 	server
 		.setPublicDirectory(config.server.publicDirectory)
-		.setPublicRoutes(config.files.routes)
+		.setPublicRoutes(config.server.apiMode, config.files)
 		.setSPARoute()
 		.listen(config.server.listener.port);
 

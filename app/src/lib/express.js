@@ -136,13 +136,60 @@ module.exports = class Server {
 	/**
 	 * @method setPublicRoutes
 	 * @description Set any public routes
-	 * @param {Array<string>} routes=[] - Array of filepaths to modules that expose
+	 * @param {string} - Mode to load api endpoints in. Either LAMBDA of DEFAULT.
+	 * 					 LAMBDA loads the lambda endpoints and sends the information as if
+	 * 					 were in lambda for emulation purposes
+	 * 					 DEFAULT loads the normal endpoints if running in a server
+	 * @param {Object<Array<string>>} files={} - Array of filepaths to modules that expose
 	 * a single function that accepts an express app as it's argument and uses that
 	 * to set itself up with express
 	 */
-	setPublicRoutes(routes = []) {
-		logger.debug(JSON.stringify(routes, null, 4));
-		routes.forEach((route) => this.app.use(require(route)));
+	setPublicRoutes(apiMode = 'default', files = {}) {
+		if (apiMode == 'LAMBDA') {
+			let { handler } = require(files.lambda);
+			this.app.use(async (req, res, next) => {
+				const uri = req.baseUrl + (req.path != '/' ? req.path : '');
+				try {
+					let {statusCode, headers, body} = await handler({
+						headers: [],
+						body: req.body,
+						queryStringParameters: req.query,
+						requestContext: {
+							domainName: req.get('host'),
+							domainPrefix: '',
+							httpMethod: req.method,
+							identity: {
+								accessKey: null,
+								accountId: null,
+								caller: null,
+								cognitoAmr: null,
+								cognitoAuthenticationProvider: null,
+								cognitoAuthenticationType: null,
+								cognitoIdentityId: null,
+								cognitoIdentityPoolId: null,
+								principalOrgId: null,
+								sourceIp: '127.0.0.1',
+								user: null,
+								userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+								userArn: null
+							},
+							path: uri,
+							protocol: 'HTTP/1.1',
+							requestTime: new Date().toISOString(),
+							requestTimeEpoch: new Date().valueOf(),
+							resourceId: `${req.method} ${uri}`,
+							resourcePath: uri,
+						}
+					});
+					res.status(statusCode).set(headers).send(body);
+				} catch (e) {
+					next();
+				}
+			});	
+		} else {
+			logger.debug(JSON.stringify(files.routes, null, 4));
+			files.routes.forEach((route) => this.app.use(require(route)));
+		}
 
 		return this;
 	}

@@ -50,6 +50,7 @@
 		"dev": "node src/scripts/nodemon.js",
 		"start": "node src/scripts/serve.js",
 		"build": "node src/scripts/build.js",
+		"get-lambda-config": "node src/scripts/generate-lambda-config.js",
 		"linter": "eslint \"src/**/*.js\"",
 		"prettier": "prettier \"src/**/*.js\" --write",
 		"changelog": "conventional-changelog -p angular -s -i CHANGELOG.md"

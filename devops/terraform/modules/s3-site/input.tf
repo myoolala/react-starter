@@ -41,3 +41,14 @@ variable "tags" {
   description = "Tags to apply to all resources. Ie: environment, cost tracking, etc..."
   default     = {}
 }
+
+variable "apigateway_origins" {
+  type = set(object({
+    id           = string
+    domain_name  = string
+    path_pattern = string
+    stage_name   = string
+  }))
+  description = "List of other origins to add to the cloudfront distro"
+  default     = []
+}

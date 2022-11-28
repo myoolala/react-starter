@@ -20,7 +20,7 @@ variable "create_new_cluster" {
   default     = true
 }
 
-variable create_ecr_repo {
+variable "create_ecr_repo" {
   type        = bool
   description = "Create a new ecr repo or not"
   default     = true

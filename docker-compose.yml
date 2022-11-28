@@ -24,6 +24,7 @@ services:
       DB_USER: foo
       DB_PASS: bar
       DB_HOST: mongo
+      API_MODE: DEFAULT
       USE_REDIS: true
       REDIS_HOST: redis
       ENABLE_SSL: false

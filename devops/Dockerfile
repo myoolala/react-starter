@@ -3,7 +3,7 @@ FROM golang
 # Update our image
 RUN echo "Updating base container" && \
     apt-get -y update && \
-    apt-get -y install zip python3 python3-pip vim && \
+    apt-get -y install zip python3 python3-pip vim jq && \
     apt-get -y upgrade && \
     pip install awscli && \
     apt-get clean && \

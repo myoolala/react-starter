@@ -19,6 +19,8 @@ resource "aws_s3_bucket_website_configuration" "s3_site" {
 }
 
 #Upload files of your static website
+# @TODO: kill these resources. Do not manages the files here
+# It will wreak havoc when there are multiple devs
 resource "aws_s3_object" "html" {
   for_each = fileset(var.path_to_app, "/**/*.html")
 
@@ -33,7 +35,7 @@ resource "aws_s3_object" "html" {
   ]
 }
 
-resource "aws_s3_bucket_object" "css" {
+resource "aws_s3_object" "css" {
   for_each = fileset(var.path_to_app, "/**/*.css")
 
   bucket       = var.host_s3_bucket
@@ -47,7 +49,7 @@ resource "aws_s3_bucket_object" "css" {
   ]
 }
 
-resource "aws_s3_bucket_object" "js" {
+resource "aws_s3_object" "js" {
   for_each = fileset(var.path_to_app, "/**/*.js")
 
   bucket       = var.host_s3_bucket
@@ -69,7 +71,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = var.cname
 }
 
-resource "aws_cloudfront_distribution" "s3_distribution" {
+resource "aws_cloudfront_distribution" "distro" {
   origin {
     # We generate the name to keep the bucket requirement optional
     domain_name = "${var.host_s3_bucket}.s3.amazonaws.com"
@@ -78,6 +80,23 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+    }
+  }
+
+  dynamic "origin" {
+    for_each = var.apigateway_origins
+
+    content {
+      domain_name = origin.value.domain_name
+      origin_id   = origin.value.id
+      origin_path = origin.value.stage_name
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
     }
   }
 
@@ -95,28 +114,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   # If you have domain configured use it here 
   aliases = [var.cname]
 
+  # Redirect to https
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = var.cname
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-  }
-
-  # Cache behavior with precedence 0
-  ordered_cache_behavior {
-    path_pattern     = "*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = var.cname
@@ -135,6 +134,63 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     max_ttl                = 31536000
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
+  }
+
+
+  # Cache behavior with precedence 0
+  # API's
+  dynamic "ordered_cache_behavior" {
+    for_each = var.apigateway_origins
+
+    content {
+      path_pattern     = ordered_cache_behavior.value.path_pattern
+      allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+      cached_methods   = ["GET", "HEAD", "OPTIONS"]
+      target_origin_id = ordered_cache_behavior.value.id
+
+      forwarded_values {
+        query_string = true
+        # Define explicit headers, since API Gateway doesn't work otherwise
+        # Aka host mismatch leads to 403's
+        headers = [
+          "Accept",
+          "Referer",
+          "Athorization",
+          "Content-Type"
+        ]
+
+        cookies {
+          forward = "all"
+        }
+      }
+
+      min_ttl                = 0
+      default_ttl            = 86400
+      max_ttl                = 31536000
+      compress               = true
+      viewer_protocol_policy = "https-only"
+    }
+  }
+
+  # S3 frontend
+  ordered_cache_behavior {
+    path_pattern     = "*"
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = var.cname
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
   }
 
   price_class = "PriceClass_200"
