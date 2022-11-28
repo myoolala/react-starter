@@ -65,5 +65,6 @@ docker-compose run devops bash -c "aws s3 cp /root/repo/devops/builds/lambdas/ s
 logYellow "Generating new lambda config for terraform"
 # @TODO: Is it worth making an entrypoint for the devops container to avoid these problems of environment?
 docker-compose run -w /root/repo/app devops bash -c "source ~/.bashrc && npm run get-lambda-config $current_tag \"$s3_prefix\" $tg_location/lambda.json"
+docker-compose run -w $tg_location devops bash -c "echo $current_tag > ./deployTag.txt"
 docker-compose run -w $tg_location devops bash -c "terragrunt apply"
 

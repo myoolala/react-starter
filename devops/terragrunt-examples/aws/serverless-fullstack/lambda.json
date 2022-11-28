@@ -1,0 +1,1 @@
+{"health":{"prefix":"/api/healthcheck","routes":["GET /api/healthcheck"],"s3Uri":"1234-health.zip"},"user":{"prefix":"/api/user","routes":["GET /api/user/active","POST /api/user/login"],"s3Uri":"1234-user.zip"}}
