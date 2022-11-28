@@ -48,6 +48,14 @@ Other highlights of the container include:
 You can now run terragrunt from the terragrunt folder. You will need to update the various HCL files for your cloud environments, but they will be marked
 Once done, run `terragrunt apply` on the area you'd like to deploy
 
+## Redis
+
+The app out of the box is configured to be able to work with redis for an offsite session storage. This will allow deploys to occur without logging users out. It also removes the need for sticky load balancers. This is config driven so you can disable it for a lighter backend
+
+## Config
+
+The app uses [env-var](https://www.npmjs.com/package/env-var) to pull in environment variables into a single config file. There are no other ways to inject a config by environment to keep the inheritance down to a minimum
+
 ## Conventions
 
 Read more on the following topics in our included docs:
