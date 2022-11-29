@@ -56,6 +56,7 @@
 		"changelog": "conventional-changelog -p angular -s -i CHANGELOG.md"
 	},
 	"devDependencies": {
+		"local-lambdas": "file:src/lambda",
 		"babel-eslint": "^10.1.0",
 		"eslint": "^7.12.1",
 		"eslint-plugin-react": "^7.21.5",

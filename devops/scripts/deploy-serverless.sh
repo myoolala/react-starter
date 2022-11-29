@@ -37,6 +37,9 @@ logYellow "Cleaning out old zip files"
 rm ../builds/lambdas/*.zip
 cd ../../app/src/lambda
 
+logYellow "Installing dependencies"
+npm install
+
 logYellow "Building new zip files"
 for file in $(ls -d */); do
     if test -f "$(pwd)/${file}index.js"; then
@@ -47,8 +50,11 @@ for file in $(ls -d */); do
 
     cp -n index.js ./$file
     cd $file
+    rm -r ./node_modules
+    mv ../node_modules ./
     zipFile="$current_tag-$(echo $file | grep -oE "[^/]+").zip"
-    zip $zipFile ./*
+    zip -r $zipFile ./*
+    mv ./node_modules ../
 
     if [[ "$overwriteFile" == "true" ]]; then
         rm "index.js"
