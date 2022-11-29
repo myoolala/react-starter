@@ -12,5 +12,5 @@ output "secret_map" {
 
 output "kms_key" {
   description = "ARN of the kms key used to encrypt the secrets"
-  value       = var.create_kms_key ? aws_kms_key.key[0].arn : null
+  value       = var.create_new_key ? aws_kms_key.key[0].arn : null
 }
