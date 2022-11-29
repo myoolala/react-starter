@@ -8,7 +8,7 @@ Each folder represents its own lambda function. Typically, one large lambda that
 
 ## Dependencies
 
-At the moment NPM packages are not supported for the lambda code to keep deploy size small. This is intended to change in the future
+Add any needed dependencies for the lambdas into the package.json file located in the lambda folder. It is separated out to keep the zips as small as possible and recommended you only install what you need for the lambda and no more. Lambda by default has the aws sdk installed already.
 
 ## Routes files
 
