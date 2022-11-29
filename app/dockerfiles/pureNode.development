@@ -1,11 +1,12 @@
 FROM node:18
 
-# Update our image
-RUN apt-get -y update && \
-    apt-get clean
-
 # Set our working directory
 WORKDIR /srv
+
+# Update our image
+RUN apt-get -y update && \
+    apt-get clean && \
+    mkdir ./bin
 
 # Copy in our package.json and other root files
 COPY package.json postcss.config.js ./

@@ -31,15 +31,17 @@ module.exports = async function main(webpackConfig) {
 		.configureLocals(config.locals);
 
 	// Compile our webpack assets for the correct environment
-	if (process.env.NODE_ENV === 'development') {
-		let { webpackDevMiddleware, webpackHotMiddleware } = compiler.middleware(webpackConfig);
-		server.app.use(webpackDevMiddleware);
-		server.app.use(webpackHotMiddleware);
-	} else {
-		let [compilerErr] = await wrapper(compiler.compile(webpackConfig));
-		if (compilerErr) {
-			logger.error('Error compiling assets with webpack.');
-			throw compilerErr;
+	if (webpackConfig !== undefined) {
+		if (process.env.NODE_ENV === 'development') {
+			let { webpackDevMiddleware, webpackHotMiddleware } = compiler.middleware(webpackConfig);
+			server.app.use(webpackDevMiddleware);
+			server.app.use(webpackHotMiddleware);
+		} else {
+			let [compilerErr] = await wrapper(compiler.compile(webpackConfig));
+			if (compilerErr) {
+				logger.error('Error compiling assets with webpack.');
+				throw compilerErr;
+			}
 		}
 	}
 

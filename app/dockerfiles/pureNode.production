@@ -1,12 +1,32 @@
-FROM node:18
-
-# Update our image
-RUN apt-get -y update && \
-    apt-get -y upgrade && \
-    apt-get clean
+FROM node:18 as uiBuilder
 
 # Set our working directory
 WORKDIR /srv
+
+# Update our image
+RUN mkdir ./bin
+
+# Copy in our package.json and other root files
+COPY package.json postcss.config.js ./
+
+# Then install any dependencies, this will help with caching
+RUN npm install
+
+# Copy over the remaining source code
+COPY src /srv/src
+
+# Build the app so that the apache container can steal the assets
+RUN npm run build && rm -r /srv/src/client
+
+FROM node:18-alpine as server
+
+# Set our working directory
+WORKDIR /srv
+
+# Update our image
+RUN apk update && \
+    apk upgrade && \
+    mkdir ./bin
 
 # Copy in our package.json and other root files
 COPY Entrypoint.sh package.json postcss.config.js ./
@@ -15,8 +35,9 @@ COPY Entrypoint.sh package.json postcss.config.js ./
 RUN npm install --omit=dev
 
 # Annoyed this has to be its own layer, fix it if you know how
-COPY src /srv/src
+COPY --from=uiBuilder /srv/src /srv/src
+COPY --from=uiBuilder /srv/bin /srv/bin
 
 # Run our app
 ENTRYPOINT [ "/srv/Entrypoint.sh" ]
-CMD ["npm", "start"]
+CMD ["npm", "run", "prod"]
