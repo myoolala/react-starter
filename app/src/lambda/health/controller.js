@@ -4,7 +4,7 @@
  * @param {Express.Request} _req - Express request object
  * @param {Express.Response} res - Express response object
  */
-module.exports.healthcheck = function healthcheck(event) {
+module.exports.healthcheck = async function healthcheck(event, cache) {
 	console.log('Health check endpoint hit');
 	return {
     statusCode: 200,
