@@ -26,11 +26,6 @@ inputs = {
       s3Uri = "test2.zip"
       prefix = "/api/healthcheck"
       routes = ["GET /api/healthcheck"]
-      # permissions = null
-      # secrets = []
-      # env_vars = merge(local.default_env_vars, {
-        
-      # })
     },
     user = {
       s3Uri = "test2.zip"
@@ -42,6 +37,30 @@ inputs = {
     }
   }
   function_configs = local.function_configs
+  addition_function_configs = {
+    health = {
+      permissions = null
+      secrets = [
+        "superSecretApiKey"
+      ]
+      env_vars = merge(local.default_env_vars, {
+        
+      })
+    }
+    user = {
+      permissions = null
+      secrets = []
+      env_vars = merge(local.default_env_vars, {
+        
+      })
+    }
+  }
+  secrets = [
+    {
+      name = "superSecretApiKey"
+      value = "omg don't tell no one"
+    },
+  ]
   create_s3_bucket = true
   ui_bucket_name = "NAME_FOR_THE_UI_BUCKET"
   # If you are not using an existing ACM cert, you will need to do multiple deploys

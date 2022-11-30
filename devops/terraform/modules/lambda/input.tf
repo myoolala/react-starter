@@ -42,3 +42,21 @@ variable "environment_vars" {
   default     = null
   description = "Environment variables to pass into the lambda"
 }
+
+variable "secrets" {
+  type = object({
+    arns     = list(string)
+    kms_keys = list(string)
+  })
+  description = "List of secrets and associated kms keys the lambda will need access to"
+  default = {
+    arns     = []
+    kms_keys = []
+  }
+}
+
+variable "permissions" {
+  type        = map(any)
+  description = "Additional permissions the lambda will need"
+  default     = null
+}

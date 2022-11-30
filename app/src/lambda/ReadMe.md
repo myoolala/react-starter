@@ -18,6 +18,11 @@ This is the single biggest difference between the normal server code and the lam
 
 This is the main invocation file, it sources the routes.js file to learn its options and then forwards the requests from lambda to the appropriate handler.
 
+## Secrets
+
+Out of the bos this support AWS Secrets Manager, ASM, and uses a built in cache class to lazy load secrets. If you would like to use the secrets extension, add the config.yml file 
+to the desired lambda folder. That also works equally well but requires that you specify all needed secrets both in a yaml and terragrunt instead of just terragrunt
+
 ### Overwriting this file
 
 If you need more specific handler behavior for a lambda, you can copy the index.js file and put it in the lambda folder. It will be used instead of the shared handler

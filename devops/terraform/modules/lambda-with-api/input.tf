@@ -25,6 +25,24 @@ variable "lambda_name" {
   description = "Name for the lambda function"
 }
 
+variable "secrets" {
+  type = object({
+    arns     = list(string)
+    kms_keys = list(string)
+  })
+  description = "List of secrets and associated kms keys the lambda will need access to"
+  default = {
+    arns     = []
+    kms_keys = []
+  }
+}
+
+variable "permissions" {
+  type        = map(any)
+  description = "Additional permissions the lambda will need"
+  default     = null
+}
+
 variable "path_prefix" {
   type        = string
   description = "Common path shared between all endpoints"
