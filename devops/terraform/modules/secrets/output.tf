@@ -1,13 +1,17 @@
 output "env_map" {
-  value = [for k, v in var.secrets : { name = v.env_name, arn = aws_secretsmanager_secret.secret[k].arn }]
+  value = [for k, v in var.secrets : { name = v.env_name, arn = aws_secretsmanager_secret.secret[k].arn } if lookup(v, "env_name", null) != null]
 }
 
 output "fargate_secrets" {
-  value = [for k, v in var.secrets : { name = v.env_name, valueFrom = aws_secretsmanager_secret.secret[k].arn }]
+  value = [for k, v in var.secrets : { name = v.env_name, valueFrom = aws_secretsmanager_secret.secret[k].arn } if lookup(v, "env_name", null) != null]
 }
 
 output "secret_map" {
   value = [for k, v in var.secrets : { name = v.name, arn = aws_secretsmanager_secret.secret[k].arn }]
+}
+
+output "arn_map" {
+  value = { for k, v in var.secrets : v.name => aws_secretsmanager_secret.secret[k].arn }
 }
 
 output "kms_key" {

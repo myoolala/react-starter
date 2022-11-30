@@ -1,3 +1,12 @@
+module "secrets" {
+  source = "../secrets"
+
+  secrets         = var.secrets
+  region          = var.region
+  create_new_key  = true
+  recovery_window = 0
+}
+
 resource "aws_s3_bucket" "code_bucket" {
   count = var.make_new_lambda_bucket ? 1 : 0
 
@@ -26,12 +35,18 @@ module "backend" {
   for_each = var.function_configs
   source   = "../lambda-with-api"
 
-  make_new_bucket    = false
-  bucket_name        = var.api_code_bucket_name
-  bucket_key         = each.value.s3Uri
-  endpoints          = each.value.routes
-  lambda_name        = each.key
-  path_prefix        = each.value.prefix
+  make_new_bucket = false
+  bucket_name     = var.api_code_bucket_name
+  bucket_key      = each.value.s3Uri
+  endpoints       = each.value.routes
+  lambda_name     = each.key
+  path_prefix     = each.value.prefix
+  secrets = {
+    arns     = [for k, name in var.addition_function_configs[each.key].secrets : module.secrets.arn_map[name]]
+    kms_keys = module.secrets.kms_key != null ? [module.secrets.kms_key] : []
+  }
+  environment_vars   = var.addition_function_configs[each.key].env_vars
+  permissions        = var.addition_function_configs[each.key].permissions
   auto_deploy        = true
   create_new_gateway = false
   gateway_id         = aws_apigatewayv2_api.gateway.id
@@ -39,6 +54,7 @@ module "backend" {
   api_log_group      = aws_cloudwatch_log_group.api_gw.arn
 
   depends_on = [
+    module.secrets,
     aws_s3_bucket.code_bucket,
     aws_apigatewayv2_api.gateway
   ]

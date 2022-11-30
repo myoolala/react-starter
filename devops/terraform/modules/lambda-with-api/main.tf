@@ -15,6 +15,8 @@ module "lambda" {
   source = "../lambda"
 
   environment_vars = var.environment_vars
+  secrets          = var.secrets
+  permissions      = var.permissions
   bucket           = var.bucket_name
   key              = var.bucket_key
   function_name    = var.lambda_name

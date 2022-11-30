@@ -30,6 +30,16 @@ variable "function_configs" {
   description = "Config for all of the lambdas to produce"
 }
 
+variable "addition_function_configs" {
+  type = map(object({
+    permissions = map(any)
+    secrets     = set(string)
+    env_vars    = map(string)
+  }))
+  default     = {}
+  description = "Addition configs for all of the lambdas to have"
+}
+
 variable "create_ui_bucket" {
   type        = bool
   default     = true
@@ -65,4 +75,16 @@ variable "s3_prefix" {
 variable "ui_files" {
   type        = string
   description = "Absolute path to the files to serve via s3"
+}
+
+variable "secrets" {
+  type        = list(map(string))
+  default     = []
+  description = "List of secrets to attach to the service"
+}
+
+variable "region" {
+  type        = string
+  description = "Region being deployed in AWS"
+  default     = "us-east-1"
 }

@@ -49,6 +49,32 @@ resource "aws_iam_role" "lambda_exec" {
     })
   }
 
+  dynamic "inline_policy" {
+    for_each = length(var.secrets.arns) > 0 ? [1] : []
+    content {
+      name = "SecretsAccess"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = concat([
+          {
+            Action   = "secretsmanager:GetSecretValue"
+            Effect   = "Allow"
+            Sid      = ""
+            Resource = var.secrets.arns
+          }], length(var.secrets.kms_keys) == 0 ? [] : [
+          {
+            Action = [
+              "kms:Decrypt"
+            ]
+            Effect   = "Allow"
+            Sid      = ""
+            Resource = var.secrets.kms_keys
+          }
+        ])
+      })
+    }
+  }
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{

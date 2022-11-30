@@ -15,7 +15,7 @@ if [ -f "/srv/server.key" ]; then
     export SSL_KEY="$(cat /srv/server.key)"
 fi
 
-if [[ "$1" == "s3-build" ]]; then
+if [ "$1" = "s3-build" ]; then
     if [ -d "/srv/bin/public" ]; then
         rm -rf /srv/bin/public/*
     fi

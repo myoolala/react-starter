@@ -19,6 +19,8 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # In case the .aws folder doesn't have this set already
+      AWS_REGION: us-east-1
       ENVIRONMENT: local
       LOG_LEVEL: debug
       DB_USER: foo
@@ -30,10 +32,15 @@ services:
       ENABLE_SSL: false
       SSL_KEY_PASSWORD: DO_NOT_USE_THIS
     volumes:
+      # Enables live reload on code changes
       - "./app/src:/srv/src"
+      # Allows the app to build the ui for us
       - "./app/bin:/srv/bin"
+      # Keep the cert out of the build using volumes
       - "./app/certs/example.cert:/srv/server.cert"
       - "./app/certs/example.key:/srv/server.key"
+      # enable aws access
+      - ~/.aws:/root/.aws
     depends_on:
     #   - mongo
       - redis
@@ -50,7 +57,7 @@ services:
     volumes:
       # Store the history
       - devops_history:/root/bash_history
-      # Volume in the repo rather than copying it
+      # Volume in the repo rather than copying it (saves time on start)
       - ./:/root/repo
       # Just in case we have any ssh to deal with
       - $HOME/.ssh:/root/.ssh
