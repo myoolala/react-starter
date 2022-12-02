@@ -18,6 +18,11 @@ This is the single biggest difference between the normal server code and the lam
 
 This is the main invocation file, it sources the routes.js file to learn its options and then forwards the requests from lambda to the appropriate handler.
 
+## Shared files
+
+There is a shared folder for code to be shared between lambdas. The relative path is not the same between local dev and in AWS, so be sure to use the path.resolve function
+when requiring a shared file
+
 ## Secrets
 
 Out of the bos this support AWS Secrets Manager, ASM, and uses a built in cache class to lazy load secrets. If you would like to use the secrets extension, add the config.yml file 
