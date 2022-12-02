@@ -11,7 +11,7 @@ if [[ "$1" == "test" ]]; then
     s3_backend_bucket="<S3_BUCKET_TO_DEPLOY_LAMBDA_CODE_TO_WITH_THIS_ENDING_SLASH>/"
     s3_backend_prefix="<S3_PREFIX_IF_YOU_NEST_THE_FUNCTIONS_IN_FOLDERS>"
     s3_backend_uri="$s3_bucket$s3_prefix"
-    s3_ui_path"<S3_URI_AND_PATH_TO_UI_FILES>"
+    s3_ui_path="<S3_URI_AND_PATH_TO_UI_FILES>"
 else
     logYellow "Please enter a valid environment to use"
     exit 1
@@ -34,7 +34,7 @@ if [ $? -ne 0 ]; then
 fi
 
 logYellow "Pushing UI code to S3"
-docker-compose run devops bash -c "aws s3 cp /root/repo/app/bin s3://$s3_ui_path$current_tag --recursive"
+docker-compose run devops bash -c "aws s3 cp /root/repo/app/bin $s3_ui_path$current_tag --recursive"
 echo -n $current_tag > $tg_location/ui-tag.txt
 
 logYellow "Cleaning out old zip files"
@@ -58,17 +58,21 @@ for f in $(ls -d */); do
         overwriteFile=true
     fi
 
+    # Build each lambda which involves moving the shared files to each folder prior to zip
     cp -n index.js ./$file/
+    mv ./shared ./$file/
     cd $file
     mv ../node_modules ./
     zipFile="$current_tag-$file.zip"
     zip -q -r $zipFile ./*
+    mv ./shared ../
     mv ./node_modules ../
 
     if [[ "$overwriteFile" == "true" ]]; then
         rm "index.js"
     fi
 
+    # copy all the zips into one folder so we only need to start docker for a single copy command
     cp -p $zipFile ../../../../devops/builds/lambdas/
     rm $zipFile
     cd ..
