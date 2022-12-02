@@ -85,7 +85,6 @@ module "frontend_and_cache" {
   acm_arn     = var.acm_arn
   cname       = var.cname
   s3_prefix   = var.s3_prefix
-  path_to_app = var.ui_files
   apigateway_origins = [
     for stage in module.backend :
     {

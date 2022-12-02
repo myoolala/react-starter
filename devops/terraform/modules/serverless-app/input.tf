@@ -64,17 +64,12 @@ variable "cname" {
 
 variable "s3_prefix" {
   type        = string
-  description = "Prefix to use when storing the site in s3"
+  description = "Path in S3 the ui is stored in"
 
   validation {
     condition     = can(regex("^[^\\/](?:.*[^\\/])?$", var.s3_prefix))
     error_message = "No leading or trailing slashes are allowed."
   }
-}
-
-variable "ui_files" {
-  type        = string
-  description = "Absolute path to the files to serve via s3"
 }
 
 variable "secrets" {

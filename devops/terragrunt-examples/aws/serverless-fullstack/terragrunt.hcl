@@ -7,6 +7,7 @@ locals {
     environment = "dev"
     # secrets = yamldecode(sops_decrypt_file("secrets.yml"))
     deploy_tag = file("deployTag.txt")
+    ui_tag = file("ui-tag.txt")
     function_configs = jsondecode(file("lambda.json"))
     default_env_vars = {
       LOG_LEVEL = "debug"
@@ -68,8 +69,7 @@ inputs = {
   # only then can you deploy everything else
   acm_arn = "CERT_ARN"
   cname = "ALTERNATE_CNAME"
-  s3_prefix = "dev"
-  ui_files = "${get_terragrunt_dir()}/../../../app/bin/"
+  s3_prefix = "dev/${local.ui_tag}"
 }
 
 # If you desire to use a remote state for multiple devs or branches
