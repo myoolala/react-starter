@@ -14,3 +14,13 @@ module.exports.healthcheck = async function healthcheck(event, cache) {
     body: JSON.stringify('OK'),
   }
 };
+module.exports.default = async function (event, cache) {
+	console.log('Health check endpoint hit');
+	return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify('default'),
+  }
+};

@@ -165,8 +165,8 @@ resource "aws_cloudfront_distribution" "distro" {
       }
 
       min_ttl                = 0
-      default_ttl            = 86400
-      max_ttl                = 31536000
+      default_ttl            = 60
+      max_ttl                = 60
       compress               = true
       viewer_protocol_policy = "https-only"
     }

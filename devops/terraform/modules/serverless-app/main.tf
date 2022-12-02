@@ -91,7 +91,8 @@ module "frontend_and_cache" {
     {
       id           = stage.stage_name
       domain_name  = trimprefix(aws_apigatewayv2_api.gateway.api_endpoint, "https://")
-      path_pattern = length(stage.routes) < 2 ? "${stage.path_prefix}" : "${stage.path_prefix}/*"
+      // @TODO this following line might be complete crap and the suffix doesn't matter
+      path_pattern = length([for v in stage.routes: v if v != "$default"]) < 2 ? "${stage.path_prefix}" : "${stage.path_prefix}/*"
       stage_name   = "/${stage.stage_name}"
     }
   ]
