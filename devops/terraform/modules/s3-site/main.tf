@@ -18,51 +18,6 @@ resource "aws_s3_bucket_website_configuration" "s3_site" {
   ]
 }
 
-#Upload files of your static website
-# @TODO: kill these resources. Do not manages the files here
-# It will wreak havoc when there are multiple devs
-resource "aws_s3_object" "html" {
-  for_each = fileset(var.path_to_app, "/**/*.html")
-
-  bucket       = var.host_s3_bucket
-  key          = "${var.s3_prefix}/${each.value}"
-  source       = "${var.path_to_app}${each.value}"
-  etag         = filemd5("${var.path_to_app}${each.value}")
-  content_type = "text/html"
-
-  depends_on = [
-    aws_s3_bucket_website_configuration.s3_site
-  ]
-}
-
-resource "aws_s3_object" "css" {
-  for_each = fileset(var.path_to_app, "/**/*.css")
-
-  bucket       = var.host_s3_bucket
-  key          = "${var.s3_prefix}/${each.value}"
-  source       = "${var.path_to_app}${each.value}"
-  etag         = filemd5("${var.path_to_app}${each.value}")
-  content_type = "text/css"
-
-  depends_on = [
-    aws_s3_bucket_website_configuration.s3_site
-  ]
-}
-
-resource "aws_s3_object" "js" {
-  for_each = fileset(var.path_to_app, "/**/*.js")
-
-  bucket       = var.host_s3_bucket
-  key          = "${var.s3_prefix}/${each.value}"
-  source       = "${var.path_to_app}${each.value}"
-  etag         = filemd5("${var.path_to_app}${each.value}")
-  content_type = "application/javascript"
-
-  depends_on = [
-    aws_s3_bucket_website_configuration.s3_site
-  ]
-}
-
 # Add more aws_s3_bucket_object for the type of files you want to upload
 # The reason for having multiple aws_s3_bucket_object with file type is to make sure
 # we add the correct content_type for the file in S3. Otherwise website load may have issues

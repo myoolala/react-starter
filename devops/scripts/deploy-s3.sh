@@ -1,20 +1,37 @@
 #!/bin/bash
 
-cd ../../app
+logYellow() {
+    local YELLOW='\033[0;33m'
+    local NC='\033[0m'
+    echo -e "${YELLOW}$@${NC}"
+}
 
-npm i
-if [ $? -eq 0 ]; then
-    echo "NPM install failed."
-    echo "There might have already been an npm install down with a different version of node."
-    echo "If so, delete the node modules folder"
+if [[ "$1" == "test" ]]; then
+    tg_location="<TG_LOCATION>"
+    s3_ui_path"<S3_URI_AND_PATH_TO_UI_FILES>"
+else
+    logYellow "Please enter a valid environment to use"
+    exit 1
 fi
-npm run build
 
-if [ $? -eq 0 ]; then
-    echo "NPM build failed."
+current_tag="$2"
+if [[ "$2" == "" ]]; then
+    current_tag="$(git rev-parse HEAD)"
+    logYellow "No optional tag provided, using the git commit: $current_tag"
 fi
 
-cd ../devops/terragrunt/s3-example
+logYellow "Building the UI"
+cd ../../
+docker-compose build app
+docker-compose run app s3-build
 
-terragrunt init
-terragrunt apply
+if [ $? -ne 0 ]; then
+    logYellow "NPM build failed."
+    exit 1
+fi
+
+logYellow "Pushing UI code to S3"
+docker-compose run devops bash -c "aws s3 cp /root/repo/app/bin s3://$s3_ui_path$current_tag --recursive"
+echo -n $current_tag > $tg_location/ui-tag.txt
+
+docker-compose run -w /root/repo/$tg_location devops bash -c "terragrunt apply"

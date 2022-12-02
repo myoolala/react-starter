@@ -12,7 +12,7 @@ variable "host_s3_bucket" {
 variable "s3_prefix" {
   type        = string
   default     = ""
-  description = "Prefix to use when storing the site in s3"
+  description = "Path in S3 the ui is deployed to"
 
   validation {
     condition     = can(regex("^[^\\/](?:.*[^\\/])?$", var.s3_prefix))
@@ -23,11 +23,6 @@ variable "s3_prefix" {
 variable "cname" {
   type        = string
   description = "CNAME to use when hosting the site"
-}
-
-variable "path_to_app" {
-  type        = string
-  description = "Absolute path to the files to serve via s3"
 }
 
 variable "acm_arn" {

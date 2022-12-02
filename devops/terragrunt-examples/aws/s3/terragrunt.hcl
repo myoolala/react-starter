@@ -4,6 +4,7 @@ terraform {
 
 locals {
     region = "us-east-1"
+    ui_tag = file("ui-tag.txt")
 }
 
 # Indicate the input values to use for the variables of the module.
@@ -15,8 +16,7 @@ inputs = {
     # only then can you deploy everything else
     # acm_arn = "arn:aws:acm:us-east-1:0123456789:certificate/abc123"
     cname = "PRIMARY_URL_TO_HOST_FROM"
-    s3_prefix = "dev"
-    path_to_app = "${get_terragrunt_dir()}/../../../app/bin/"
+    s3_prefix = "dev/${local.ui_tag}"
 
   tags = {
     Environment = "dev"
