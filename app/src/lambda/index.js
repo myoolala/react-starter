@@ -6,12 +6,13 @@ const fs = require('fs');
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 const ROUTES_PATTERN = process.env['ROUTES_PATTERN'] || 'routes.js';
+const ENVIRONMENT = process.env['ENVIRONMENT'] || 'production';
 // Load aws ahead of the handler as this can take a while to execute
 const { SecretsManager } = require('aws-sdk');
 
-const adjustRoutes = ({routes, prefix}) => {
-  return Object.keys(routes).reduce((agg, route) => {
-    agg[route.replace(/^([A-Z]+ )/, "$1" + prefix)] = routes[route];
+const adjustRoutes = ({routes: paths, prefix}) => {
+  return Object.keys(paths).reduce((agg, path) => {
+    agg[path.replace(/^([A-Z]+ )/, "$1" + prefix)] = paths[path];
     return agg;
   }, {});
 }
@@ -38,12 +39,21 @@ const routes = getFiles(__dirname).then(files => {
   return files.filter(file => new RegExp(ROUTES_PATTERN).test(file));
 }).then(files => {
   return files.reduce((agg, file) => {
+    const newRoutes = require(file);
     return {
-      ...agg,
-      ...adjustRoutes(require(file))
+      prefixes: agg.prefixes.concat(newRoutes.prefix),
+      options: {
+        ...agg.options,
+        ...adjustRoutes(newRoutes)
+      }
     }
-  }, {});
+  }, {
+    prefixes: [],
+    options: {}
+  });
 });
+
+const canUseDefault = (env, path, prefixes) => env !== 'local' || !!prefixes.filter(prefix => path.startsWith(prefix)).length;
 
 /**
  * @class Cache
@@ -106,14 +116,19 @@ const cache = new Cache(1000 * 60 * 5, new SecretsManager());
 module.exports.handler = async (event) => {
   console.log('Event: ', event);
 
-  // @TODO add support for the ANY method on an endpoint
-  let options = await routes;
+  let {prefixes, options} = await routes;
   const option = event.requestContext.resourceId;
+  const anyOption = option.replace(/^[A-Z]+/, 'ANY');
   try {
     if (options[option]) {
-      return options[option](event, cache);
-    } else if (options[event.requestContext.httpMethod + ' $default']) {
-      return options[event.requestContext.httpMethod + ' $default'](event, cache);
+      return await options[option](event, cache);
+    } else if (options[anyOption]) {
+      return await options[anyOption](event, cache);
+    // If we are running locally, we can't just assume to use the default path if it's there. We need to
+    // check the prefixes for a potential match. This is done via cloudfront when deployed so we don't
+    // check when running in lambda. It wouldn't work anyway due to the lambdas getting split up
+    } else if (options['$default'] && canUseDefault(ENVIRONMENT, event.requestContext.path, prefixes)) {
+      return await options['$default'](event, cache);
     }
     console.error('No matching endpoint found');
     return;

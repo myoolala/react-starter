@@ -23,6 +23,13 @@ This is the main invocation file, it sources the routes.js file to learn its opt
 Out of the bos this support AWS Secrets Manager, ASM, and uses a built in cache class to lazy load secrets. If you would like to use the secrets extension, add the config.yml file 
 to the desired lambda folder. That also works equally well but requires that you specify all needed secrets both in a yaml and terragrunt instead of just terragrunt
 
-### Overwriting this file
+## The $default path
+
+The API Gateway supports only 1 default endpoint no matter how many lambdas or stages you have deployed. If you plan to use a default endpoint, it is recommended you make its own
+lambda for it with its own appropriate prefix. Possible all of /api or whatever may be needed if the case ever happens.
+
+If you had to have multiple default endpoints, you would need 1 api gateway per default lambda which at the moment is not supported
+
+### Overwriting the index.js file
 
 If you need more specific handler behavior for a lambda, you can copy the index.js file and put it in the lambda folder. It will be used instead of the shared handler

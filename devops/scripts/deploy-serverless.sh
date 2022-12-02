@@ -38,7 +38,7 @@ rm ../builds/lambdas/*.zip
 cd ../../app/src/lambda
 
 logYellow "Installing dependencies"
-npm install
+npm install --omit=dev
 
 logYellow "Building new zip files"
 for file in $(ls -d */); do
