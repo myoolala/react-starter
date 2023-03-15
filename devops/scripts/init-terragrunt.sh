@@ -43,7 +43,7 @@ createNewCert() {
 
 if [ ! -d "/root/repo/devops" ]; then
     echo "This is only meant to run in the devops container"
-    echo "Please run \"docker-compose run devops tg-init\""    
+    echo "Please run \"docker-compose run devops bash /root/repo/devops/scripts/init-terragrunt.sh\""    
     exit 1
 fi
 
