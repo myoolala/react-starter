@@ -22,9 +22,9 @@ RUN echo "Updating base container" && \
     apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
     apt-get update && apt-get install packer
 
-RUN tfenv install 1.3.3 && \
-    tfenv use 1.3.3 && \
-    tgenv install 0.39.2 && \
+RUN tfenv install 1.3.9 && \
+    tfenv use 1.3.9 && \
+    tgenv install 0.44.4 && \
     bash -c "source ~/.bashrc && nvm install 18"
 
 WORKDIR /root/repo

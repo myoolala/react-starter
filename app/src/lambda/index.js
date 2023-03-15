@@ -5,7 +5,7 @@ const { resolve } = require('path');
 const fs = require('fs');
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
-const Cache = require(resolve('shared/cache'));
+const Cache = require('./shared/cache.js');
 const ROUTES_PATTERN = process.env['ROUTES_PATTERN'] || 'routes.js';
 const ENVIRONMENT = process.env['ENVIRONMENT'] || 'production';
 // Load aws ahead of the handler as this can take a while to execute
