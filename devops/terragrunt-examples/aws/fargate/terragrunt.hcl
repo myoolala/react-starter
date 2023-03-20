@@ -1,5 +1,5 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../..//terraform/modules/fargate-service"
+  source = "${get_terragrunt_dir()}/../../..//terraform/modules/fargate-stack"
 }
 
 locals {
@@ -67,6 +67,8 @@ inputs = {
 #       bucket = "mybucket"
 #       key    = "path/to/my/key"
 #       region = "us-east-1"
+#       encrypt = true
+#       dynamodb_table = "state-lock"
 #     }
 #   }
 
