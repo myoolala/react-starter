@@ -11,7 +11,7 @@ module "fargate_service" {
     scan_on_push = false
     create_new_cluster = true
     create_ecr_repo = true
-    certificate_arn = var.dns.cert != null ? var.dns.cert : aws_acm_certificate.cert[0].arn
+    certificate_arn = var.dns.cert == null ? module.cert.arn : var.dns.cert
     cluster_name = var.cluster_name
     container_port = 3000
     image_tag = var.image_tag
@@ -26,55 +26,22 @@ module "fargate_service" {
     }
 
     depends_on = [
-      aws_acm_certificate.cert,
-      aws_acm_certificate_validation.cert
+      module.cert
     ]
 }
 
-resource "aws_acm_certificate" "cert" {
-    count = var.dns.domain != null ? 1 : 0
+module "cert" {
+    source = "github.com/myoolala/terraform-aws?ref=main//cert"
 
-  domain_name       = var.dns.domain
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-data "aws_route53_zone" "cert" {
-    count = var.dns.hosted_zone != null ? 1 : 0
-  name         = var.dns.hosted_zone
-  private_zone = var.dns.private
-}
-
-resource "aws_route53_record" "cert" {
-  for_each = var.dns.domain == null ? {} : {
-    for dvo in aws_acm_certificate.cert[0].domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = data.aws_route53_zone.cert[0].zone_id
-}
-
-resource "aws_acm_certificate_validation" "cert" {
-    count = var.dns.domain != null ? 1 : 0
-
-  certificate_arn         = aws_acm_certificate.cert[0].arn
-  validation_record_fqdns = [for record in aws_route53_record.cert : record.fqdn]
+    domain = var.dns.domain
+    hosted_zone = var.dns.hosted_zone
+    private = false
 }
 
 resource "aws_route53_record" "cname" {
-    count = var.dns.domain != null ? 1 : 0
+    count = var.dns.hosted_zone != null && var.dns.domain != null ? 1 : 0
 
-  zone_id = data.aws_route53_zone.cert[0].zone_id
+  zone_id = var.dns.hosted_zone
   name    = var.dns.domain
   type    = "CNAME"
   ttl     = 300

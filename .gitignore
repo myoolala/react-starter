@@ -21,3 +21,5 @@ app/certs
 .terraform.lock.hcl
 devops/terragrunt-test
 devops/scripts-test
+
+devops/terragrunt/
