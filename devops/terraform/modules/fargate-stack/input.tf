@@ -23,7 +23,7 @@ variable "create_ecr_repo" {
 variable "cluster_name" {
   type        = string
   description = "Name of the cluster to attached the service to"
-} 
+}
 
 variable "image_tag" {
   type        = string
@@ -64,11 +64,11 @@ variable "secrets" {
 }
 
 variable "dns" {
-  type        = object({
+  type = object({
     hosted_zone = optional(string, null)
-    cert = optional(string, null)
-    domain = optional(string, null)
-    private = optional(bool, false)
+    cert        = optional(string, null)
+    domain      = optional(string, null)
+    private     = optional(bool, false)
   })
   description = "Any and all dns related configurations including public certificates"
 }
