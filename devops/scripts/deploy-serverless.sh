@@ -7,11 +7,11 @@ logYellow() {
 }
 
 if [[ "$1" == "test" ]]; then
-    tg_location="<TG_LOCATION>"
-    s3_backend_bucket="<S3_BUCKET_TO_DEPLOY_LAMBDA_CODE_TO_WITH_THIS_ENDING_SLASH>/"
-    s3_backend_prefix="<S3_PREFIX_IF_YOU_NEST_THE_FUNCTIONS_IN_FOLDERS>"
-    s3_backend_uri="$s3_bucket$s3_prefix"
-    s3_ui_path="<S3_URI_AND_PATH_TO_UI_FILES>"
+    tg_location="devops/terragrunt/aws/serverless-stack"
+    s3_bucket="project-code-bucket"
+    s3_backend_prefix="lambdas/"
+    s3_backend_uri="$s3_bucket/$s3_backend_prefix"
+    s3_ui_path="$s3_bucket/ui/"
 else
     logYellow "Please enter a valid environment to use"
     exit 1
@@ -34,7 +34,7 @@ if [ $? -ne 0 ]; then
 fi
 
 logYellow "Pushing UI code to S3"
-docker-compose run devops bash -c "aws s3 cp /root/repo/app/bin $s3_ui_path$current_tag --recursive"
+docker-compose run devops bash -c "aws s3 cp /root/repo/app/bin s3://$s3_ui_path$current_tag --recursive"
 echo -n $current_tag > $tg_location/ui-tag.txt
 
 logYellow "Cleaning out old zip files"

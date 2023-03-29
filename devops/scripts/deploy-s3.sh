@@ -7,8 +7,8 @@ logYellow() {
 }
 
 if [[ "$1" == "test" ]]; then
-    tg_location="<TG_LOCATION>"
-    s3_ui_path"<S3_URI_AND_PATH_TO_UI_FILES>"
+    tg_location="devops/terragrunt/aws/s3"
+    s3_ui_path="project-ui-files/"
 else
     logYellow "Please enter a valid environment to use"
     exit 1

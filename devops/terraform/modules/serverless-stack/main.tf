@@ -17,7 +17,7 @@ module "app" {
   # acm_arn = var.dns.cert == module.cert.arn : var.dns.cert
   acm_arn   = module.cert.arn
   cname     = var.dns.domain
-  s3_prefix = "ui"
+  s3_prefix = var.s3_prefix
   secrets   = var.secrets
   region    = var.region
 

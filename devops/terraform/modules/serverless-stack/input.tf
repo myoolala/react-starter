@@ -44,3 +44,9 @@ variable "region" {
   description = "Region being deployed in AWS"
   default     = "us-east-1"
 }
+
+variable "s3_prefix" {
+  type        = string
+  description = "Prefix path in s3 for the ui files"
+  default     = "ui/latest/"
+}
