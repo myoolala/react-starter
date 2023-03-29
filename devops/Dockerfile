@@ -19,8 +19,7 @@ RUN echo "Updating base container" && \
     go install go.mozilla.org/sops/v3/cmd/sops@v3.7.3 && \
     echo "Installing packer" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
-    apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
-    apt-get update && apt-get install packer
+    apt-get update && apt-get install -y packer
 
 RUN tfenv install 1.3.9 && \
     tfenv use 1.3.9 && \

@@ -11,9 +11,9 @@ cd ../..
 
 if [[ "$1" == "example" ]]; then
     dockerfile="pureNode.production"
-    tg_location="/root/repo/devops/terragrunt/fargate-example"
+    tg_location="/root/repo/devops/terragrunt/aws/fargate"
     ecr_repo="react-test"
-    region="<REGION>"
+    region="us-east-1"
     aws_account_id="<AWS_ACCOUNT_ID>"
 else
     logYellow "Please enter a valid environment to use"

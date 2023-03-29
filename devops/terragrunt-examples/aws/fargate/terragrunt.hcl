@@ -1,21 +1,21 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../..//terraform/modules/fargate-service"
+  source = "${get_terragrunt_dir()}/../../..//terraform/modules/fargate-stack"
 }
 
 locals {
     region = "us-east-1"
     environment = "dev"
-    # secrets = yamldecode(sops_decrypt_file("secrets.yml"))
+    secrets = yamldecode(sops_decrypt_file("secrets.yml"))
 }
 
 # Indicate the input values to use for the variables of the module.
 inputs = {
-  vpc_id = "vpc-ID"
+  vpc_id = "VPC_ID"
   cluster_name = local.environment
   region = local.region
-  service_name = "react-test"
+  service_name = "react-starter"
   create_ecr_repo = true
-  image_tag = "example"
+  image_tag = "latest"
   container_port = 80
   service_protocol = "HTTP"
   service_subnets = [
@@ -23,52 +23,45 @@ inputs = {
     "subnet-2"
   ]
   loadbalancer_subnets = [
-    "subnet-1",
-    "subnet-2"
+    "subnet-3",
+    "subnet-4"
   ]
-  lb_protocol = "HTTP"
-  lb_port = 80
+  lb_protocol = "HTTPS"
+  lb_port = 443
   desired_count = 1
-  # certificate_arn = "cert_arn"
-  env_vars = {
-    ENVIRONMENT = "test"
-    LOG_LEVEL = "debug"
-    DB_USER = "foo"
-    DB_PASS = "bar"
-    DB_HOST = "mongo"
-    USE_REDIS = false
-    REDIS_HOST = "redis"
-    ENABLE_SSL = false
-    PORT = 80
+  dns = {
+    hosted_zone = "YEAHTHISAINTREAL1234"
+    domain = "www.google.com"
   }
-  # secrets = [
-  #   {
-  #     name = "internalTrafficCert"
-  #     value = local.secrets.ssl.cert
-  #     env_name = "SSL_CERT"
-  #   },
-  #   {
-  #     name = "internalTrafficKey"
-  #     value = local.secrets.ssl.key
-  #     env_name = "SSL_KEY"
-  #   },
-  #   {
-  #     name = "internalTrafficPassphrase"
-  #     value = local.secrets.ssl.passphrase
-  #     env_name = "SSL_KEY_PASSWORD"
-  #   },
-  # ]
+  secrets = [
+    {
+      name = "internalTrafficCert"
+      value = local.secrets.ssl.cert
+      env_name = "SSL_CERT"
+    },
+    {
+      name = "internalTrafficKey"
+      value = local.secrets.ssl.key
+      env_name = "SSL_KEY"
+    },
+    {
+      name = "internalTrafficPassphrase"
+      value = local.secrets.ssl.passphrase
+      env_name = "SSL_KEY_PASSWORD"
+    },
+  ]
 }
 
-# If you desire to use a remote state for multiple devs or branches
-#   remote_state {
-#     backend = "s3"
-#     config = {
-#       bucket = "mybucket"
-#       key    = "path/to/my/key"
-#       region = "us-east-1"
-#     }
-#   }
+remote_state {
+  backend = "s3"
+  config = {
+    bucket = "project-state"
+    key    = "personal/fargate-stack.state"
+    region = "us-east-1"
+    encrypt = true
+    dynamodb_table = "project-state-lock"
+  }
+}
 
 # Indicate what region to deploy the resources into
 generate "provider" {
@@ -80,6 +73,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = "${local.environment}"
+      Billing = "${local.environment}"
     }
   }
 }
