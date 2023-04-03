@@ -3,18 +3,18 @@ import { defaultAppState } from './config';
 import Body from './core/Body';
 import store from './store';
 
-import { createMuiTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
-import blue from '@material-ui/core/colors/blue';
-import pink from '@material-ui/core/colors/pink';
-import red from '@material-ui/core/colors/red';
+import { createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material';
+import blue from '@mui/material/colors/blue';
+import pink from '@mui/material/colors/pink';
+import red from '@mui/material/colors/red';
 
 import './app.scss';
 
 /**
  * Material UI Theme
  */
-let theme = createMuiTheme({
+let theme = createTheme({
 	palette: {
 		type: 'light',
 		primary: blue,
