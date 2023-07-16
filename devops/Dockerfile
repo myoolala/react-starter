@@ -5,7 +5,7 @@ RUN echo "Updating base container" && \
     apt-get -y update && \
     apt-get -y install zip python3 python3-pip vim jq lsb-release software-properties-common && \
     apt-get -y upgrade && \
-    pip install awscli && \
+    pip install awscli --break-system-packages && \
     apt-get clean all && \
     echo "Installing node version manager" && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
