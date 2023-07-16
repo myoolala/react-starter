@@ -6,23 +6,36 @@ terraform {
 module "fargate_service" {
   source = "github.com/myoolala/terraform-aws?ref=main//fargate-service"
 
-  service_name         = var.service_name
-  vpc_id               = var.vpc_id
-  scan_on_push         = false
-  create_new_cluster   = true
-  create_ecr_repo      = true
-  certificate_arn      = var.dns.cert == null ? module.cert.arn : var.dns.cert
-  cluster_name         = var.cluster_name
-  container_port       = 3000
-  image_tag            = var.image_tag
-  service_subnets      = var.service_subnets
-  loadbalancer_subnets = var.loadbalancer_subnets
-  region               = var.region
-  lb_ingress_cidr      = var.lb_ingress_cidr
-  log_retention        = var.log_retention
-  secrets              = var.secrets
+  service_name = var.service_name
+  network = {
+    vpc_id  = var.vpc_id
+    subnets = var.service_subnets
+  }
+  cluster = {
+    name   = var.cluster_name
+    create = true
+  }
+  ecr = {
+    create       = true
+    scan_on_push = false
+  }
+  image_tag = var.image_tag
+  region    = var.region
+  log_retention = var.log_retention
+  secrets       = var.secrets
   env_vars = {
 
+  }
+  lb = {
+    subnets = var.loadbalancer_subnets
+    port_mappings = [{
+      listen_port  = 443
+      forward_port = 3000
+      cert         = var.dns.cert == null ? module.cert.arn : var.dns.cert
+      # health_check = {
+
+      # }
+    },]
   }
 
   depends_on = [
