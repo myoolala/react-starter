@@ -3,29 +3,24 @@ terraform {
   backend "s3" {}
 }
 
-module "fargate_service" {
-  source = "github.com/myoolala/terraform-aws?ref=main//fargate-service"
-
-  service_name = var.service_name
+module "asg" {
+  source = "github.com/myoolala/terraform-aws?ref=main//asg-service"
+  name   = var.stack_identifier
   network = {
-    vpc_id  = var.vpc_id
-    subnets = var.service_subnets
+    vpc     = var.vpc_id
+    subnets = var.asg_subnets
+    ingresses = var.ssh.ips != null ? [{
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.ssh.ips
+    }] : []
   }
-  cluster = {
-    name   = var.cluster_name
-    create = true
+  config = {
+    health_check_type = "EC2"
   }
-  ecr = {
-    create       = true
-    scan_on_push = false
-  }
-  image_tag     = var.image_tag
-  region        = var.region
-  log_retention = var.log_retention
-  secrets       = var.secrets
-  env_vars = {
-
-  }
+  ami           = var.ami
+  instance_type = "t3.micro"
   lb = {
     subnets = var.loadbalancer_subnets
     port_mappings = [{
@@ -37,10 +32,18 @@ module "fargate_service" {
       # }
     }]
   }
+  key_name = var.ssh.key != null ? aws_key_pair.debug_key[0].key_name : var.ssh.key_name
 
   depends_on = [
     module.cert
   ]
+}
+
+resource "aws_key_pair" "debug_key" {
+  count = var.ssh.key != null ? 1 : 0
+
+  key_name   = "${var.stack_identifier}-debugging-key"
+  public_key = var.ssh.key
 }
 
 module "cert" {
@@ -58,6 +61,5 @@ resource "aws_route53_record" "cname" {
   name    = var.dns.domain
   type    = "CNAME"
   ttl     = 300
-  records = [module.fargate_service.cname_target]
+  records = [module.asg.cname_target]
 }
-

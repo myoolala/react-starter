@@ -1,4 +1,4 @@
-variable "stack_name" {
+variable "stack_identifier" {
   type        = string
   description = "Name to apply to the Fargate service"
 }
@@ -59,4 +59,14 @@ variable "dns" {
     private     = optional(bool, false)
   })
   description = "Any and all dns related configurations including public certificates"
+}
+
+variable "ssh" {
+  type = object({
+    key      = optional(string, null)
+    key_name = optional(string, null)
+    ips      = optional(list(string), null)
+  })
+  description = "SSH key access config"
+  default     = {}
 }
