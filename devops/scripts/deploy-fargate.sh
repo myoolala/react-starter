@@ -14,7 +14,7 @@ if [[ "$1" == "example" ]]; then
     tg_location="/root/repo/devops/terragrunt/aws/fargate"
     ecr_repo="react-test"
     region="us-east-1"
-    aws_account_id="<AWS_ACCOUNT_ID>"
+    aws_account_id="4372189748"
 else
     logYellow "Please enter a valid environment to use"
     exit 1
@@ -27,7 +27,14 @@ if [[ "$2" == "" ]]; then
 fi
 
 logYellow "Building image"
-docker build --platform linux/amd64 -f "app/dockerfiles/$dockerfile" -t $current_tag ./app
+aws_image="$aws_account_id.dkr.ecr.$region.amazonaws.com/$ecr_repo:$current_tag"
+# This is the old method that does gzip compression. This is fine but AWS is now optimized to work zstd compression
+# docker build --platform linux/amd64 -f "app/dockerfiles/$dockerfile" -t $current_tag ./app
+
+docker buildx build \
+  --platform linux/amd64 \
+  --file "app/dockerfiles/$dockerfile" \
+  --output type=image,name=$aws_image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=false ./app
 
 if [[ "$?" != "0" ]]; then
     logYellow "Error during docker build, aborting"
@@ -43,7 +50,6 @@ if [[ "$REPLY" != "y" ]]; then
 fi
 
 logYellow "Pushing the image to ECR"
-aws_image="$aws_account_id.dkr.ecr.$region.amazonaws.com/$ecr_repo:$current_tag"
 aws ecr get-login-password --region $region | docker login --username AWS --password-stdin "$aws_account_id.dkr.ecr.$region.amazonaws.com"
 docker tag $current_tag $aws_image
 docker push "$aws_image"
