@@ -26,4 +26,16 @@ RUN tfenv install 1.5.3 && \
     tgenv install 0.48.1 && \
     bash -c "source ~/.bashrc && nvm install 18"
 
+    # aliases
+RUN echo 'alias tf="terraform"' >> ~/.bashrc && \
+    echo 'alias tfi="terraform init"' >> ~/.bashrc && \
+    echo 'alias tfp="terraform plan"' >> ~/.bashrc && \
+    echo 'alias tfa="terraform apply"' >> ~/.bashrc && \
+    echo 'alias tfd="terraform destroy"' >> ~/.bashrc && \
+    echo 'alias tg="terragrunt"' >> ~/.bashrc && \
+    echo 'alias tgi="terragrunt init"' >> ~/.bashrc && \
+    echo 'alias tgp="terragrunt plan"' >> ~/.bashrc && \
+    echo 'alias tga="terragrunt apply"' >> ~/.bashrc && \
+    echo 'alias tgd="terragrunt destroy"' >> ~/.bashrc
+
 WORKDIR /root/repo
