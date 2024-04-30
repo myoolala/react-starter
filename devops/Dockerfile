@@ -9,39 +9,25 @@ RUN echo "Updating base container" && \
     apt-get clean all && \
     echo "Installing node version manager" && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
-    echo "Installing tfenv" && \
-    git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
-    ln -s ~/.tfenv/bin/* /usr/local/bin && \
-    echo "Installing tgenv" && \
-    git clone https://github.com/cunymatthieu/tgenv.git ~/.tgenv && \
-    ln -s ~/.tgenv/bin/* /usr/local/bin && \
+    echo "Installing tenv" && \
+    LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name) && \
+    curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb" && \
+    dpkg -i "tenv_${LATEST_VERSION}_amd64.deb" && \
     echo "Installing SOPS" && \
     go install go.mozilla.org/sops/v3/cmd/sops@v3.7.3 && \
     echo "Installing packer" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     apt-get update && apt-get install -y packer
 
-RUN tfenv install 1.7.5 && \
-    tfenv use 1.7.5 && \
-    tgenv install 0.56.3 && \
+RUN tenv tofu install 1.7.0-rc1 && \
+    tenv tofu use 1.7.0-rc1 && \
+    tenv terragrunt install 0.56.3 && \
     bash -c "source ~/.bashrc && nvm install 20" && \
-    echo 'alias tf="terraform"' >> ~/.bashrc && \
-    echo 'alias tfi="terraform init"' >> ~/.bashrc && \
-    echo 'alias tfp="terraform plan"' >> ~/.bashrc && \
-    echo 'alias tfa="terraform apply"' >> ~/.bashrc && \
-    echo 'alias tfd="terraform destroy"' >> ~/.bashrc && \
-    echo 'alias tg="terragrunt"' >> ~/.bashrc && \
-    echo 'alias tgi="terragrunt init"' >> ~/.bashrc && \
-    echo 'alias tgp="terragrunt plan"' >> ~/.bashrc && \
-    echo 'alias tga="terragrunt apply"' >> ~/.bashrc && \
-    echo 'alias tgd="terragrunt destroy"' >> ~/.bashrc
-
-    # aliases
-RUN echo 'alias tf="terraform"' >> ~/.bashrc && \
-    echo 'alias tfi="terraform init"' >> ~/.bashrc && \
-    echo 'alias tfp="terraform plan"' >> ~/.bashrc && \
-    echo 'alias tfa="terraform apply"' >> ~/.bashrc && \
-    echo 'alias tfd="terraform destroy"' >> ~/.bashrc && \
+    echo 'alias tf="tofu"' >> ~/.bashrc && \
+    echo 'alias tfi="tofu init"' >> ~/.bashrc && \
+    echo 'alias tfp="tofu plan"' >> ~/.bashrc && \
+    echo 'alias tfa="tofu apply"' >> ~/.bashrc && \
+    echo 'alias tfd="tofu destroy"' >> ~/.bashrc && \
     echo 'alias tg="terragrunt"' >> ~/.bashrc && \
     echo 'alias tgi="terragrunt init"' >> ~/.bashrc && \
     echo 'alias tgp="terragrunt plan"' >> ~/.bashrc && \
