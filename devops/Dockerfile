@@ -21,10 +21,20 @@ RUN echo "Updating base container" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     apt-get update && apt-get install -y packer
 
-RUN tfenv install 1.5.3 && \
-    tfenv use 1.5.3 && \
-    tgenv install 0.48.1 && \
-    bash -c "source ~/.bashrc && nvm install 18"
+RUN tfenv install 1.7.5 && \
+    tfenv use 1.7.5 && \
+    tgenv install 0.56.3 && \
+    bash -c "source ~/.bashrc && nvm install 20" && \
+    echo 'alias tf="terraform"' >> ~/.bashrc && \
+    echo 'alias tfi="terraform init"' >> ~/.bashrc && \
+    echo 'alias tfp="terraform plan"' >> ~/.bashrc && \
+    echo 'alias tfa="terraform apply"' >> ~/.bashrc && \
+    echo 'alias tfd="terraform destroy"' >> ~/.bashrc && \
+    echo 'alias tg="terragrunt"' >> ~/.bashrc && \
+    echo 'alias tgi="terragrunt init"' >> ~/.bashrc && \
+    echo 'alias tgp="terragrunt plan"' >> ~/.bashrc && \
+    echo 'alias tga="terragrunt apply"' >> ~/.bashrc && \
+    echo 'alias tgd="terragrunt destroy"' >> ~/.bashrc
 
     # aliases
 RUN echo 'alias tf="terraform"' >> ~/.bashrc && \
