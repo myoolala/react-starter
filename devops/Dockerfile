@@ -14,7 +14,7 @@ RUN echo "Updating base container" && \
     curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb" && \
     dpkg -i "tenv_${LATEST_VERSION}_amd64.deb" && \
     echo "Installing SOPS" && \
-    go install go.mozilla.org/sops/v3/cmd/sops@v3.7.3 && \
+    go install github.com/getsops/sops/v3/cmd/sops@v3.8.1 && \
     echo "Installing packer" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     apt-get update && apt-get install -y packer
