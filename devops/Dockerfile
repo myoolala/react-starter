@@ -19,8 +19,8 @@ RUN echo "Updating base container" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     apt-get update && apt-get install -y packer
 
-RUN tenv tofu install 1.7.0-rc1 && \
-    tenv tofu use 1.7.0-rc1 && \
+RUN tenv tofu install 1.7.1 && \
+    tenv tofu use 1.7.1 && \
     tenv terragrunt install 0.56.3 && \
     bash -c "source ~/.bashrc && nvm install 20" && \
     echo 'alias tf="tofu"' >> ~/.bashrc && \
