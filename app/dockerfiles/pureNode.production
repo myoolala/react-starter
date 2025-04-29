@@ -1,4 +1,4 @@
-FROM node:18 as uiBuilder
+FROM node:20 as uiBuilder
 
 # Set our working directory
 WORKDIR /srv
@@ -18,7 +18,7 @@ COPY src /srv/src
 # Build the app so that the apache container can steal the assets
 RUN npm run build && rm -r /srv/src/client
 
-FROM node:18-alpine as server
+FROM node:20-alpine as server
 
 # Set our working directory
 WORKDIR /srv
