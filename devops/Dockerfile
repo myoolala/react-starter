@@ -11,9 +11,10 @@ RUN <<EOF
     echo "Installing node version manager"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
     echo "Installing tenv"
+    DKPG_VERSION=$(dpkg --print-architecture)
     LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
-    curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb"
-    dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
+    curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_${DKPG_VERSION}.deb"
+    dpkg -i "tenv_${LATEST_VERSION}_${DKPG_VERSION}.deb"
     echo "Installing SOPS"
     go install github.com/getsops/sops/v3/cmd/sops@v3.8.1
     echo "Installing packer"
